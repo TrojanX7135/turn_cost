@@ -204,14 +204,23 @@ public class DateTimeRangeParser implements ConditionalValueParser {
     {
         String [] DateTimeArr = timeRangeString.split(" ");
         String[] count;
-        if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
-            count = new String[0];
-        else if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
-            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+        if(timeRangeString.contains("AND") && timeRangeString.contains(":"))
+            count = timeRangeString.split(" AND ");
+        else if(timeRangeString.contains("and") && timeRangeString.contains(":"))
+            count = timeRangeString.split(" and ");
+        else if((timeRangeString.contains("AND") || timeRangeString.contains("and")) && !timeRangeString.contains(":")) count = new String[0];
         else
         {
-            count = (DateTimeArr[1].contains(";")) ? DateTimeArr[1].split(";") : (DateTimeArr[1].contains("AND")) ? DateTimeArr[1].split(" AND ") : (DateTimeArr[1].contains("and")) ? DateTimeArr[1].split(" and ") : DateTimeArr[1].split(",");
+            if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
+                count = new String[0];
+            else if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
+                count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+            else
+            {
+                count = (DateTimeArr[1].contains(";")) ? DateTimeArr[1].split(";") : (DateTimeArr[1].contains("AND")) ? DateTimeArr[1].split(" AND ") : (DateTimeArr[1].contains("and")) ? DateTimeArr[1].split(" and ") : DateTimeArr[1].split(",");
+            }
         }
+
         System.out.print("So khoang thoi gian: ");
         System.out.println(count.length);
         return count;
@@ -221,13 +230,21 @@ public class DateTimeRangeParser implements ConditionalValueParser {
     {
         String [] DateTimeArr = timeRangeString.split(" ");
         String[] count;
-        if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
-            count = new String[0];
-        else if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
-            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+        if(timeRangeString.contains("AND") && !timeRangeString.contains(":"))
+            count = timeRangeString.split(" AND ");
+        else if(timeRangeString.contains("and") && !timeRangeString.contains(":"))
+            count = timeRangeString.split(" and ");
+        else if((timeRangeString.contains("AND") || timeRangeString.contains("and")) && timeRangeString.contains(":")) count = new String[0];
         else
         {
-            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+            if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
+                count = new String[0];
+            else if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
+                count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+            else
+            {
+                count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
+            }
         }
         System.out.print("So khoang ngay: ");
         System.out.println(count.length);
