@@ -27,19 +27,43 @@ graphhopper:
   #
   # To prevent long running routing queries you should usually enable either speed or hybrid mode for all the given
   # profiles (see below). Or at least limit the number of `routing.max_visited_nodes`.
-
+  graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true
+#  graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true,bike|turn_costs=true
+  graph.encoded_values: toll,hgv,surface,max_width,max_height,curvature,track_type
   profiles:
     - name: car
       vehicle: car
+      weighting: custom
+      turn_costs: true
       custom_model:
-        distance_influence: 70
+          distance_influence: 70
+
+    - name: truck
+      vehicle: roads
+      weighting: custom
+      turn_costs: true
+      custom_model_files: [ truck.json ]
+
+    -   name: motorcycle
+        vehicle: roads
+        weighting: custom
+        custom_model_files: [ motorcycle.json,curvature.json ]
+#      custom_model: {
+#            "turn_costs": {
+#                "straight": 1,
+#                "left": 1,
+#                "right": 1000
+#            }
+#        }
 #      turn_costs: true
 #      u_turn_costs: 60
 
 #    - name: bike
 #      # to use the bike vehicle make sure to not ignore cycleways etc., see import.osm.ignored_highways below
 #      vehicle: bike
-#      custom_model_files: [bike.json, bike_elevation.json]
+#      weighting: custom
+#      turn-costs: true
+#      custom_model_files: [bike.json]
 
   # instead of the inbuilt custom models (see ./core/src/main/resources/com/graphhopper/custom_models)
   # you can specify a folder where to find your own custom model files
@@ -52,7 +76,10 @@ graphhopper:
   # profiles with `turn_costs: true` a more elaborate preparation is required (longer preparation time and more memory
   # usage) and the routing will also be slower than with `turn_costs: false`.
   profiles_ch:
+    - profile: truck
     - profile: car
+#    - profile: bike
+    - profile: motorcycle
 
   # Hybrid mode:
   # Similar to speed mode, the hybrid mode (Landmarks, LM) also speeds up routing by doing calculating auxiliary data
@@ -190,7 +217,8 @@ graphhopper:
   # but also because there are fewer crossings between highways (=junctions).
   # Another typical example is excluding 'motorway', 'trunk' and maybe 'primary' highways for bicycle or pedestrian routing.
   import.osm.ignored_highways: footway,cycleway,path,pedestrian,steps # typically useful for motorized-only routing
-  # import.osm.ignored_highways: motorway,trunk # typically useful for non-motorized routing
+#  import.osm.ignored_highways: footway, pedestrian,steps
+#  import.osm.ignored_highways: motorway,trunk # typically useful for non-motorized routing
 
   # configure the memory access, use RAM_STORE for well equipped servers (default and recommended)
   graph.dataaccess.default_type: RAM_STORE
