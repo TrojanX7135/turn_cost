@@ -18,16 +18,28 @@
 package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.EnumEncodedValue;
 import com.graphhopper.routing.ev.EdgeIntAccess;
+import com.graphhopper.routing.ev.TrafficStable;
 import com.graphhopper.storage.IntsRef;
 
-/**
- * This interface defines how parts of the information from 'way' is converted into IntsRef. A TagParser usually
- * has one corresponding EncodedValue but more are possible too.
- */
-public interface TagParser {
+import static com.graphhopper.routing.ev.TrafficStable.MISSING;
 
-    void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags);
+public class OSMTrafficStableParser implements TagParser {
 
-    default void setparset(String dateRangeParserDate){}
+    private final EnumEncodedValue<TrafficStable> trafficEnc;
+
+    public OSMTrafficStableParser(EnumEncodedValue<TrafficStable> trafficEnc) {
+        this.trafficEnc = trafficEnc;
+    }
+
+    @Override
+    public void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay readerWay, IntsRef relationFlags) {
+        String trafficTag = readerWay.getTag("traffic_stable");
+        TrafficStable traffic = TrafficStable.find(trafficTag);
+        if (traffic == MISSING)
+            return;
+
+        trafficEnc.setEnum(false, edgeId, edgeIntAccess, traffic);
+    }
 }

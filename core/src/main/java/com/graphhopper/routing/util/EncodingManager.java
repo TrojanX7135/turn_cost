@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
  * @author Nop
  */
 public class EncodingManager implements EncodedValueLookup {
+    private EncodedValueFactory encodedValueFactory = new DefaultEncodedValueFactory();
     private final LinkedHashMap<String, EncodedValue> encodedValueMap;
     private final LinkedHashMap<String, EncodedValue> turnEncodedValueMap;
     private int intsForFlags;
@@ -324,5 +325,15 @@ public class EncodingManager implements EncodedValueLookup {
 
     public static String getKey(String prefix, String str) {
         return prefix + "_" + str;
+    }
+
+
+    // Cập nhật graph
+    public void setEncodedValueMap(String KEY, EncodedValue newEncodedValue)
+    {
+        Builder emBuilder = new Builder();
+        emBuilder.add(encodedValueFactory.create("OSMConditionalRestrictionsParser", new PMap()));
+        EncodingManager result = emBuilder.build();
+        this.encodedValueMap.put(KEY, newEncodedValue);
     }
 }

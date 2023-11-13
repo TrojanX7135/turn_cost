@@ -21,8 +21,8 @@ package com.graphhopper.routing.util;
 import com.graphhopper.reader.ReaderRelation;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.RestrictionTagParser;
-import com.graphhopper.routing.ev.EncodedValue;
-import com.graphhopper.routing.ev.EdgeIntAccess;
+import com.graphhopper.routing.ev.*;
+import com.graphhopper.routing.util.parsers.OSMConditionalRestrictionsParser;
 import com.graphhopper.routing.util.parsers.RelationTagParser;
 import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
@@ -58,6 +58,21 @@ public class OSMParsers {
     public OSMParsers addWayTagParser(TagParser tagParser) {
         wayTagParsers.add(tagParser);
         return this;
+    }
+
+    // Update graph
+    // List<TagParser>
+    public  void setWayTagParser(String newday)
+    {
+        for(TagParser item : this.wayTagParsers)
+        {
+            if (item.getClass() == OSMConditionalRestrictionsParser.class)
+            {
+                System.out.println("alo");
+                item.setparset(newday);
+            }
+        }
+//        return this.wayTagParsers;
     }
 
     public OSMParsers addRelationTagParser(Function<EncodedValue.InitializerConfig, RelationTagParser> createRelationTagParser) {

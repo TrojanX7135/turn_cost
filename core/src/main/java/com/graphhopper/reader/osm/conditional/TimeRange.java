@@ -15,19 +15,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing.util.parsers;
+package com.graphhopper.reader.osm.conditional;
 
-import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.EdgeIntAccess;
-import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.Helper;
+
+import java.text.DateFormat;
+import java.util.Calendar;
 
 /**
- * This interface defines how parts of the information from 'way' is converted into IntsRef. A TagParser usually
- * has one corresponding EncodedValue but more are possible too.
+ * This class represents a time range and is able to determine if a given time is in that range.
+ *
+ * @author ttung6618
  */
-public interface TagParser {
+public class TimeRange {
+    private final Calendar from;
+    private final Calendar to;
 
-    void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags);
+    public TimeRange(ParsedTime from, ParsedTime to) {
+        this.from = from.getMin();
+        this.to = to.getMax();
+    }
 
-    default void setparset(String dateRangeParserDate){}
+    public boolean isInRange(Calendar date) {
+        return date.getTime().compareTo(this.from.getTime()) >= 0 && date.getTime().compareTo(this.to.getTime()) <= 0;
+    }
 }

@@ -15,19 +15,28 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing.util.parsers;
+package com.graphhopper.reader.osm.conditional;
 
-import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.EdgeIntAccess;
-import com.graphhopper.storage.IntsRef;
+import org.junit.jupiter.api.Test;
+
+import java.text.ParseException;
+import java.util.Calendar;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * This interface defines how parts of the information from 'way' is converted into IntsRef. A TagParser usually
- * has one corresponding EncodedValue but more are possible too.
+ * @author Robin Boldt
  */
-public interface TagParser {
+public class TimeRangeParserTest extends CalendarBasedTest {
+    final TimeRangeParser timeRangeParser = new TimeRangeParser();
 
-    void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags);
 
-    default void setparset(String dateRangeParserDate){}
+    @Test
+    public void testParseSimpleTimeRangeWithoutYear() throws ParseException {
+        TimeRange timeRange = timeRangeParser.getRange("6:30-9:40");
+        Calendar specificDate = getCalendar(1970, Calendar.JANUARY, 1);
+        specificDate.set(Calendar.HOUR_OF_DAY, 9);
+        specificDate.set(Calendar.MINUTE, 50);
+        assertTrue(timeRange.isInRange(specificDate));
+    }
 }

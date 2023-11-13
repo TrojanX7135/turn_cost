@@ -15,19 +15,43 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package com.graphhopper.routing.util.parsers;
+package com.graphhopper.reader.osm.conditional;
 
-import com.graphhopper.reader.ReaderWay;
-import com.graphhopper.routing.ev.EdgeIntAccess;
-import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.Helper;
+
+import java.util.Calendar;
 
 /**
- * This interface defines how parts of the information from 'way' is converted into IntsRef. A TagParser usually
- * has one corresponding EncodedValue but more are possible too.
+ * This class represents a parsed Time and the parse type.
+ * <p>
+ *
+ * @author ttung6618
  */
-public interface TagParser {
+public class ParsedTime {
+    public final ParseType parseType;
+    public final Calendar parsedCalendar;
 
-    void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags);
+    public ParsedTime(ParseType parseType, Calendar parsedCalendar) {
+        this.parseType = parseType;
+        this.parsedCalendar = parsedCalendar;
+    }
 
-    default void setparset(String dateRangeParserDate){}
+
+    public Calendar getMax() {
+        return parsedCalendar;
+    }
+
+    public Calendar getMin() {
+        return parsedCalendar;
+    }
+
+    @Override
+    public String toString() {
+        return parseType + "; " + Helper.createFormatter().format(parsedCalendar.getTime());
+    }
+
+    public enum ParseType {
+        HOUR_MINUTE
+    }
+
 }

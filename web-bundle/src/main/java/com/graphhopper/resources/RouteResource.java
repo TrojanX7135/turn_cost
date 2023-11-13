@@ -26,6 +26,7 @@ import com.graphhopper.http.GHRequestTransformer;
 import com.graphhopper.http.ProfileResolver;
 import com.graphhopper.jackson.MultiException;
 import com.graphhopper.jackson.ResponsePathSerializer;
+import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
 import io.dropwizard.jersey.params.AbstractParam;
@@ -44,6 +45,11 @@ import java.util.Map;
 import static com.graphhopper.util.Parameters.Details.PATH_DETAILS;
 import static com.graphhopper.util.Parameters.Routing.*;
 import static java.util.stream.Collectors.toList;
+
+//Thời gian thực
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import com.graphhopper.routing.util.OSMParsers;
 
 /**
  * Resource to use GraphHopper in a remote client application like mobile or browser. Note: If type
@@ -133,7 +139,6 @@ public class RouteResource {
         profileName = profileResolver.resolveProfile(profileResolverHints);
         removeLegacyParameters(request.getHints());
         request.setProfile(profileName);
-
         GHResponse ghResponse = graphHopper.route(request);
 
         double took = sw.stop().getMillisDouble();
@@ -181,7 +186,29 @@ public class RouteResource {
         request.setProfile(profileResolver.resolveProfile(profileResolverHints));
         removeLegacyParameters(request.getHints());
 
+        LocalDateTime current = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formatted = current.format(formatter);
+        String dateRangeParserDate = formatted;
+        System.out.println(dateRangeParserDate);
+
+        //this.graphHopper.setOsmParsers(dateRangeParserDate);
+        this.graphHopper.getCHGraphs().toString();
+
         GHResponse ghResponse = graphHopper.route(request);
+
+//        LocalDateTime current1 = LocalDateTime.now();
+//        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        String formatted1 = current1.format(formatter);
+//        String dateRangeParserDate1 = formatted;
+//        System.out.println(dateRangeParserDate1);
+//        TagParser create
+//
+//        OSMConditionalRestrictionsParser
+
+//        TagParser tagParser = tagParserFactory.create(encodingManager, s, new PMap().putObject("date_range_parser_day", dateRangeParserString));
+
+
         boolean instructions = request.getHints().getBool(INSTRUCTIONS, true);
         boolean enableElevation = request.getHints().getBool("elevation", false);
         boolean calcPoints = request.getHints().getBool(CALC_POINTS, true);

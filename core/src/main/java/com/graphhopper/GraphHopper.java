@@ -132,6 +132,14 @@ public class GraphHopper {
     private String encodedValuesString = "";
     private String vehiclesString = "";
 
+    // update
+
+//    public  GraphHopper setTime(String time)
+//    {
+//        this.osmParsers
+//        return this;
+//    }
+
     public GraphHopper setEncodedValuesString(String encodedValuesString) {
         this.encodedValuesString = encodedValuesString;
         return this;
@@ -841,6 +849,7 @@ public class GraphHopper {
         }
         return this;
     }
+
 
     /**
      * Imports and processes data, storing it to disk when complete.
@@ -1573,4 +1582,14 @@ public class GraphHopper {
         }
         return newProfiles;
     }
+
+    public void setOsmParsers(String date)
+    {
+        this.osmParsers.setWayTagParser(date);
+    }
+
+//    public void setCHGraphs(String KEY, )
+//    {
+//        this.encodingManager;
+//    }
 }

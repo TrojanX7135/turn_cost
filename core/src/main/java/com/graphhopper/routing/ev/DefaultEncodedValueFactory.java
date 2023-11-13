@@ -101,6 +101,15 @@ public class DefaultEncodedValueFactory implements EncodedValueFactory {
             return BikeAccessConditional.create();
         } else if (FootAccessConditional.KEY.equals(name)) {
             return FootAccessConditional.create();
+
+        // thêm truck
+        } else if (TruckAccessConditional.KEY.equals(name)) {
+            return TruckAccessConditional.create();
+
+            // Thêm traffic_statble
+        } else if (TrafficStable.KEY.equals(name)) {
+            return TrafficStable.create();
+
         } else if (FerrySpeed.KEY.equals(name)) {
             return FerrySpeed.create();
         } else {
