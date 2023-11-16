@@ -112,11 +112,8 @@ public class TimeRangeParser implements ConditionalValueParser {
         Calendar calendar = createCalendar();
         try {
             if (!time.isEmpty()) {
-
                 calendar.set(Calendar.YEAR, 1970);
                 calendar.set(Calendar.MONTH, Calendar.JANUARY);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-
                 calendar.setTime(Helper.createFormatter("HH:mm").parse(time));
             }
         } catch (ParseException e) {

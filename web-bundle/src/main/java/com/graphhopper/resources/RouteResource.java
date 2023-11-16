@@ -26,7 +26,14 @@ import com.graphhopper.http.GHRequestTransformer;
 import com.graphhopper.http.ProfileResolver;
 import com.graphhopper.jackson.MultiException;
 import com.graphhopper.jackson.ResponsePathSerializer;
+import com.graphhopper.routing.ev.BooleanEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValue;
+import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
+import com.graphhopper.routing.ev.SimpleBooleanEncodedValue;
 import com.graphhopper.routing.util.parsers.TagParser;
+import com.graphhopper.search.KVStorage;
+import com.graphhopper.storage.BaseGraph;
+import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
 import com.graphhopper.util.shapes.GHPoint;
 import io.dropwizard.jersey.params.AbstractParam;
@@ -50,6 +57,8 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import com.graphhopper.routing.util.OSMParsers;
+import com.graphhopper.storage.StorableProperties;
+import com.graphhopper.routing.util.AllEdgesIterator;
 
 /**
  * Resource to use GraphHopper in a remote client application like mobile or browser. Note: If type
@@ -192,9 +201,40 @@ public class RouteResource {
         String dateRangeParserDate = formatted;
         System.out.println(dateRangeParserDate);
 
-        //this.graphHopper.setOsmParsers(dateRangeParserDate);
-        this.graphHopper.getCHGraphs().toString();
+        //OSMParsers b = this.graphHopper.getOSMParsers();
+        StorableProperties properties = this.graphHopper.getProperties();
+        Map<String, String> a = properties.getAll();
+        //String alo = properties.get("name");
 
+        BaseGraph baseGraph = this.graphHopper.getBaseGraph();
+        for(int i = 0; i < baseGraph.getEdges();i++)
+        {
+            //System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getName());
+//            int b = baseGraph.getAllEdges().getEdgeKey();
+//            if(baseGraph.getEdgeIteratorStateForKey(i).getName().equals("Đường Kha Vạn Cân"))
+                System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getKeyValues());
+        }
+//        EdgeIteratorState hehe = baseGraph.getEdgeIteratorStateForKey(25);
+//        System.out.println(hehe.getName());
+        //System.out.println(baseGraph.getEdgeIteratorState(0,45).getName());
+        //baseGraph.
+        //List<KVStorage.KeyValue> alo = baseGraph.getEdgeIteratorState(1,45).;
+        //AllEdgesIterator allEdgesIterator = baseGraph.getAllEdges();
+        //List<KVStorage.KeyValue> alo = allEdgesIterator.getKeyValues();
+        //baseGraph.getEdgeIteratorStateForKey(0);
+        //baseGraph.edge(0, 1).setDistance(2);
+
+        System.out.println(properties.get("access:conditional"));
+
+//        BooleanEncodedValue carAccessEnc = new SimpleBooleanEncodedValue("car_access", true);
+//        DecimalEncodedValue carSpeedEnc = new DecimalEncodedValueImpl("car_speed", 5, 5, false);
+
+        //EdgeIterator edgeIterator = a.createEdgeExplorer().setBaseNode(1);
+        //edgeIterator.getName();
+
+
+        //EdgeIterator edgeIterator =a.createEdgeExplorer().setBaseNode(1);
+        //this.graphHopper.get
         GHResponse ghResponse = graphHopper.route(request);
 
 //        LocalDateTime current1 = LocalDateTime.now();

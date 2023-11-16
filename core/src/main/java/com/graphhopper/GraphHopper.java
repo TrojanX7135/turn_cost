@@ -41,6 +41,7 @@ import com.graphhopper.routing.util.countryrules.CountryRuleFactory;
 import com.graphhopper.routing.util.parsers.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.custom.CustomWeighting;
+import com.graphhopper.search.KVStorage;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
@@ -884,6 +885,7 @@ public class GraphHopper {
                 .withTurnCosts(encodingManager.needsTurnCostsSupport())
                 .setSegmentSize(defaultSegmentSize)
                 .build();
+
         properties = new StorableProperties(directory);
         checkProfilesConsistency();
 
@@ -900,6 +902,12 @@ public class GraphHopper {
             cleanUp();
             postImport();
             postProcessing(closeEarly);
+            /*for(int i = 0; i < baseGraph.getEdges();i++)
+            {
+                System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getName());
+            }*/
+
+            //EdgeIteratorState a = baseGraph.getAllEdges();
             flush();
         } finally {
             if (lock != null)
@@ -1583,13 +1591,8 @@ public class GraphHopper {
         return newProfiles;
     }
 
-    public void setOsmParsers(String date)
+    public void updateGraph(String newTime)
     {
-        this.osmParsers.setWayTagParser(date);
-    }
 
-//    public void setCHGraphs(String KEY, )
-//    {
-//        this.encodingManager;
-//    }
+    }
 }

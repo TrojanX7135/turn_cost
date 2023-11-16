@@ -20,7 +20,7 @@ package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalValueParser;
-import com.graphhopper.reader.osm.conditional.TimeRangeParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -43,7 +43,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
     private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsParser.class);
     private final Collection<String> conditionals;
     private final Setter restrictionSetter;
-    private TimeRangeParser parser;
+    private DateRangeParser parser;
     private final boolean enabledLogs = false;
 
     @FunctionalInterface
@@ -55,16 +55,17 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         this.conditionals = conditionals;
         this.restrictionSetter = restrictionSetter;
         if (dateRangeParserDate.isEmpty()) {
-            LocalDateTime current = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-            dateRangeParserDate = current.format(formatter);
+//            LocalDateTime current = LocalDateTime.now();
+//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+//            dateRangeParserDate = current.format(formatter);
 
             //dateRangeParserDate  = Helper.createFormatter("HH:mm").format(new Date().getTime());
             //dateRangeParserDate = Helper.createFormatter().format(new Date().getTime());
-           // dateRangeParserDate = Helper.createFormatter("yyyy-MM-dd").format(new Date());
+           dateRangeParserDate = Helper.createFormatter("yyyy-MM-dd").format(new Date());
         }
 
-        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
+        //this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
+        this.parser = DateRangeParser.createInstance(dateRangeParserDate);
         System.out.println(dateRangeParserDate);
         System.out.println(parser.toString());
     }
@@ -116,9 +117,9 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
         return false;
     }
-    @Override
-    public void setparset(String dateRangeParserDate)
-    {
-        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
-    }
+//    @Override
+//    public void setparset(String dateRangeParserDate)
+//    {
+//        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
+//    }
 }

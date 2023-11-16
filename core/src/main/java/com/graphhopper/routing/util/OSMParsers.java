@@ -69,7 +69,7 @@ public class OSMParsers {
             if (item.getClass() == OSMConditionalRestrictionsParser.class)
             {
                 System.out.println("alo");
-                item.setparset(newday);
+                //item.setparset(newday);
             }
         }
 //        return this.wayTagParsers;
