@@ -62,6 +62,7 @@ import static com.graphhopper.util.Helper.nf;
  * {@link OSMNodeData}.
  */
 public class WaySegmentParser {
+    private List <ReaderWay> readerWays_list = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(WaySegmentParser.class);
     private static final Set<String> INCLUDE_IF_NODE_TAGS = new HashSet<>(Arrays.asList("barrier", "highway", "railway", "crossing", "ford"));
 
@@ -81,6 +82,23 @@ public class WaySegmentParser {
     private final OSMNodeData nodeData;
     private Date timestamp;
 
+    public ReaderWay getWay(int index)
+    {
+        return readerWays_list.get(index);
+    }
+
+    public List <ReaderWay> getConditionalWays_list()
+    {
+        List <ReaderWay> ConditionalWays_list = new ArrayList<>();
+        for(ReaderWay way : readerWays_list)
+        {
+            String a = way.getTag("access:conditional");
+            if(a == null) a = "";
+            if(!a.isEmpty()) ConditionalWays_list.add(way);
+        }
+        return  ConditionalWays_list;
+    }
+
     private WaySegmentParser(OSMNodeData nodeData) {
         this.nodeData = nodeData;
     }
@@ -89,6 +107,7 @@ public class WaySegmentParser {
      * @param osmFile the OSM file to parse, supported formats include .osm.xml, .osm.gz and .xml.pbf
      */
     public void readOSM(File osmFile) {
+        long a = nodeData.getNodeCount();
         if (nodeData.getNodeCount() > 0)
             throw new IllegalStateException("You can only run way segment parser once");
 
@@ -237,6 +256,7 @@ public class WaySegmentParser {
 
         @Override
         public void handleWay(ReaderWay way) {
+            readerWays_list.add(way);
             if (!handledWays) {
                 LOGGER.info("pass2 - start reading OSM ways");
                 handledWays = true;

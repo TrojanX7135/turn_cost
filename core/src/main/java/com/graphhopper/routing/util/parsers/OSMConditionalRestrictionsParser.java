@@ -28,17 +28,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import com.graphhopper.reader.ReaderWay;
 
 /**
  * This parser fills the different XYAccessConditional enums from the OSM conditional restrictions.
  * Node tags will be ignored.
  */
 public class OSMConditionalRestrictionsParser implements TagParser {
+    //private List<ReaderWay> readerConditionalWays_list = new ArrayList<>();
 
     private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsParser.class);
     private final Collection<String> conditionals;
@@ -77,7 +77,10 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 
         Boolean b = getConditional(way.getTags());
         if (b != null)
+        {
+            //this.readerConditionalWays_list.add(way);
             restrictionSetter.setBoolean(edgeId, edgeIntAccess, b);
+        }
     }
 
     Boolean getConditional(Map<String, Object> tags) {
@@ -89,6 +92,12 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             if (strs.length == 2 && isInRange(strs[1].trim())) {
                 if (strs[0].trim().equals("no")) return false;
                 if (strs[0].trim().equals("yes")) return true;
+            }
+            // Thêm vào
+            else if(strs.length == 2 && !isInRange(strs[1].trim()))
+            {
+                if (strs[0].trim().equals("no")) return true;
+                if (strs[0].trim().equals("yes")) return false;
             }
         }
         return null;
@@ -106,6 +115,11 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
         try {
+            LocalDateTime current = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            String dateRangeParserDate = current.format(formatter);
+            this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
+
             ConditionalValueParser.ConditionState res = parser.checkCondition(conditionalValue);
             if (res.isValid())
                 return res.isCheckPassed();
@@ -117,9 +131,9 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
         return false;
     }
-//    @Override
-//    public void setparset(String dateRangeParserDate)
+
+//    public ReaderWay getConditioanlWay(int index)
 //    {
-//        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
+//        return readerConditionalWays_list.get(index);
 //    }
 }

@@ -93,7 +93,7 @@ public class DefaultTagParserFactory implements TagParserFactory {
         else if (name.equals(CarAccessConditional.KEY)) {
             EnumEncodedValue<CarAccessConditional> enc = lookup.getEnumEncodedValue(CarAccessConditional.KEY, CarAccessConditional.class);
             Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? CarAccessConditional.YES : CarAccessConditional.NO);
-            return new OSMConditionalRestrictionsParser(CarAccessConditional.CONDITIONALS, fct, properties.getString("date_range_parser_day", ""));
+            return new OSMConditionalRestrictionsParser(CarAccessConditional.CONDITIONALS, fct, "");
 //        } else if (name.equals(BikeAccessConditional.KEY)) {
 //            EnumEncodedValue<BikeAccessConditional> enc = lookup.getEnumEncodedValue(BikeAccessConditional.KEY, BikeAccessConditional.class);
 //            Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? BikeAccessConditional.YES : BikeAccessConditional.NO);

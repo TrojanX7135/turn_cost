@@ -72,6 +72,7 @@ import static com.graphhopper.util.Parameters.Algorithms.RoundTrip;
  * @author Peter Karich
  */
 public class GraphHopper {
+    OSMReader reader;
     private static final Logger logger = LoggerFactory.getLogger(GraphHopper.class);
     private MaxSpeedCalculator maxSpeedCalculator;
     private final Map<String, Profile> profilesByName = new LinkedHashMap<>();
@@ -133,13 +134,6 @@ public class GraphHopper {
     private String encodedValuesString = "";
     private String vehiclesString = "";
 
-    // update
-
-//    public  GraphHopper setTime(String time)
-//    {
-//        this.osmParsers
-//        return this;
-//    }
 
     public GraphHopper setEncodedValuesString(String encodedValuesString) {
         this.encodedValuesString = encodedValuesString;
@@ -902,12 +896,6 @@ public class GraphHopper {
             cleanUp();
             postImport();
             postProcessing(closeEarly);
-            /*for(int i = 0; i < baseGraph.getEdges();i++)
-            {
-                System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getName());
-            }*/
-
-            //EdgeIteratorState a = baseGraph.getAllEdges();
             flush();
         } finally {
             if (lock != null)
@@ -962,6 +950,7 @@ public class GraphHopper {
                 setElevationProvider(eleProvider).
                 setCountryRuleFactory(countryRuleFactory);
         logger.info("using " + getBaseGraphString() + ", memory:" + getMemInfo());
+        this.reader = reader;
 
         createBaseGraphAndProperties();
 
@@ -1436,7 +1425,7 @@ public class GraphHopper {
         return jobs;
     }
 
-    protected void flush() {
+    public void flush() {
         logger.info("flushing graph " + getBaseGraphString() + ", details:" + baseGraph.toDetailsString() + ", "
                 + getMemInfo() + ")");
         baseGraph.flush();
@@ -1591,8 +1580,8 @@ public class GraphHopper {
         return newProfiles;
     }
 
-    public void updateGraph(String newTime)
+    public OSMReader getReader()
     {
-
+        return this.reader;
     }
 }

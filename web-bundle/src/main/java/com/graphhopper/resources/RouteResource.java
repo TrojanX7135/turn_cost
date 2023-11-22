@@ -17,6 +17,7 @@
  */
 package com.graphhopper.resources;
 
+import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
 import com.graphhopper.GraphHopper;
@@ -26,6 +27,7 @@ import com.graphhopper.http.GHRequestTransformer;
 import com.graphhopper.http.ProfileResolver;
 import com.graphhopper.jackson.MultiException;
 import com.graphhopper.jackson.ResponsePathSerializer;
+import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValueImpl;
@@ -35,6 +37,7 @@ import com.graphhopper.search.KVStorage;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.storage.RoutingCHGraph;
 import com.graphhopper.util.*;
+import com.graphhopper.util.details.PathDetail;
 import com.graphhopper.util.shapes.GHPoint;
 import io.dropwizard.jersey.params.AbstractParam;
 import org.slf4j.Logger;
@@ -46,9 +49,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.graphhopper.search.KVStorage.KeyValue.STREET_NAME;
+import static com.graphhopper.search.KVStorage.KeyValue.createKV;
 import static com.graphhopper.util.Parameters.Details.PATH_DETAILS;
 import static com.graphhopper.util.Parameters.Routing.*;
 import static java.util.stream.Collectors.toList;
@@ -59,6 +66,8 @@ import java.time.format.DateTimeFormatter;
 import com.graphhopper.routing.util.OSMParsers;
 import com.graphhopper.storage.StorableProperties;
 import com.graphhopper.routing.util.AllEdgesIterator;
+import com.graphhopper.storage.IntsRef;
+import com.graphhopper.reader.osm.WayToEdgesMap;
 
 /**
  * Resource to use GraphHopper in a remote client application like mobile or browser. Note: If type
@@ -72,7 +81,7 @@ public class RouteResource {
 
     private static final Logger logger = LoggerFactory.getLogger(RouteResource.class);
 
-    private final GraphHopper graphHopper;
+    private GraphHopper graphHopper;
     private final ProfileResolver profileResolver;
     private final GHRequestTransformer ghRequestTransformer;
     private final Boolean hasElevation;
@@ -195,59 +204,17 @@ public class RouteResource {
         request.setProfile(profileResolver.resolveProfile(profileResolverHints));
         removeLegacyParameters(request.getHints());
 
-        LocalDateTime current = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formatted = current.format(formatter);
-        String dateRangeParserDate = formatted;
-        System.out.println(dateRangeParserDate);
-
-        //OSMParsers b = this.graphHopper.getOSMParsers();
-        StorableProperties properties = this.graphHopper.getProperties();
-        Map<String, String> a = properties.getAll();
-        //String alo = properties.get("name");
-
-        BaseGraph baseGraph = this.graphHopper.getBaseGraph();
-        for(int i = 0; i < baseGraph.getEdges();i++)
-        {
-            //System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getName());
-//            int b = baseGraph.getAllEdges().getEdgeKey();
-//            if(baseGraph.getEdgeIteratorStateForKey(i).getName().equals("Đường Kha Vạn Cân"))
-                System.out.println(baseGraph.getEdgeIteratorStateForKey(i).getKeyValues());
+        // Cập nhật xem xét điều kiện thời gian
+        List <ReaderWay> conditionalWaysList= this.graphHopper.getReader().getWaysegment().getConditionalWays_list();
+        for (ReaderWay readerWay : conditionalWaysList) {
+            List<Integer> b = this.graphHopper.getReader().getEgdeFromWay(readerWay.getId());
+            IntsRef relationFlags = this.graphHopper.getReader().getRelFlagsMap(readerWay.getId());
+            for (Integer integer : b) {
+                this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
+            }
         }
-//        EdgeIteratorState hehe = baseGraph.getEdgeIteratorStateForKey(25);
-//        System.out.println(hehe.getName());
-        //System.out.println(baseGraph.getEdgeIteratorState(0,45).getName());
-        //baseGraph.
-        //List<KVStorage.KeyValue> alo = baseGraph.getEdgeIteratorState(1,45).;
-        //AllEdgesIterator allEdgesIterator = baseGraph.getAllEdges();
-        //List<KVStorage.KeyValue> alo = allEdgesIterator.getKeyValues();
-        //baseGraph.getEdgeIteratorStateForKey(0);
-        //baseGraph.edge(0, 1).setDistance(2);
-
-        System.out.println(properties.get("access:conditional"));
-
-//        BooleanEncodedValue carAccessEnc = new SimpleBooleanEncodedValue("car_access", true);
-//        DecimalEncodedValue carSpeedEnc = new DecimalEncodedValueImpl("car_speed", 5, 5, false);
-
-        //EdgeIterator edgeIterator = a.createEdgeExplorer().setBaseNode(1);
-        //edgeIterator.getName();
-
-
-        //EdgeIterator edgeIterator =a.createEdgeExplorer().setBaseNode(1);
-        //this.graphHopper.get
+        this.graphHopper.flush();
         GHResponse ghResponse = graphHopper.route(request);
-
-//        LocalDateTime current1 = LocalDateTime.now();
-//        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        String formatted1 = current1.format(formatter);
-//        String dateRangeParserDate1 = formatted;
-//        System.out.println(dateRangeParserDate1);
-//        TagParser create
-//
-//        OSMConditionalRestrictionsParser
-
-//        TagParser tagParser = tagParserFactory.create(encodingManager, s, new PMap().putObject("date_range_parser_day", dateRangeParserString));
-
 
         boolean instructions = request.getHints().getBool(INSTRUCTIONS, true);
         boolean enableElevation = request.getHints().getBool("elevation", false);

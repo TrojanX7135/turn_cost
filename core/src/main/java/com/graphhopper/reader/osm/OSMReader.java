@@ -74,7 +74,10 @@ import static java.util.Collections.emptyList;
  * into several segments that are divided by intersections or barrier nodes. Each segment is added as an edge of the
  * resulting graph. Afterwards we scan the relations again to determine turn restrictions.
  **/
+
 public class OSMReader {
+    private Map <Long, List <Integer>> edgeMaps = new HashMap<>();
+    private  WaySegmentParser waysegment;
     private static final Logger LOGGER = LoggerFactory.getLogger(OSMReader.class);
 
     private static final Pattern WAY_NAME_PATTERN = Pattern.compile("; *");
@@ -97,9 +100,36 @@ public class OSMReader {
     private Date osmDataDate;
     private long zeroCounter = 0;
 
-    private GHLongLongHashMap osmWayIdToRelationFlagsMap = new GHLongLongHashMap(200, .5f);
+    static private GHLongLongHashMap osmWayIdToRelationFlagsMap = new GHLongLongHashMap(200, .5f);
     private WayToEdgesMap restrictedWaysToEdgesMap = new WayToEdgesMap();
+
     private List<ReaderRelation> restrictionRelations = new ArrayList<>();
+
+
+    public static void addValueForKey(Map<Long, List<Integer>> myMap, Long key, int value) {
+        // Kiểm tra xem key đã tồn tại trong Map chưa
+        if (!myMap.containsKey(key)) {
+            // Nếu chưa tồn tại, tạo một danh sách mới và thêm vào Map
+            List <Integer> newEdge = new ArrayList<>();
+            newEdge.add(value);
+            myMap.put(key, newEdge);
+        }
+        else
+        {
+            myMap.get(key).add(value);
+            myMap.put(key, myMap.get(key));
+        }
+    }
+
+    public List<Integer> getEgdeFromWay(long osmWayId)
+    {
+        return edgeMaps.get(osmWayId);
+    }
+
+    public  WaySegmentParser getWaysegment()
+    {
+        return this.waysegment;
+    }
 
     public OSMReader(BaseGraph baseGraph, OSMParsers osmParsers, OSMReaderConfig config) {
         this.baseGraph = baseGraph;
@@ -175,6 +205,7 @@ public class OSMReader {
                 .setWorkerThreads(config.getWorkerThreads())
                 .build();
         waySegmentParser.readOSM(osmFile);
+        this.waysegment = waySegmentParser;
         osmDataDate = waySegmentParser.getTimeStamp();
         if (baseGraph.getNodes() == 0)
             throw new RuntimeException("Graph after reading OSM must not be empty");
@@ -385,6 +416,7 @@ public class OSMReader {
 
         checkDistance(edge);
         restrictedWaysToEdgesMap.putIfReserved(way.getId(), edge.getEdge());
+        addValueForKey(edgeMaps, way.getId(),edge.getEdge());
     }
 
     private void checkCoordinates(int nodeIndex, GHPoint point) {
@@ -642,15 +674,16 @@ public class OSMReader {
 
     private void releaseEverythingExceptRestrictionData() {
         eleProvider.release();
-        osmWayIdToRelationFlagsMap = null;
+        //osmWayIdToRelationFlagsMap restrictedWaysToEdgesMap;
     }
 
     private void releaseRestrictionData() {
-        restrictedWaysToEdgesMap = null;
+        // Sửa đổi
+        //restrictedWaysToEdgesMap = null;
         restrictionRelations = null;
     }
 
-    IntsRef getRelFlagsMap(long osmId) {
+    public  IntsRef getRelFlagsMap(long osmId) {
         long relFlagsAsLong = osmWayIdToRelationFlagsMap.get(osmId);
         tempRelFlags.ints[0] = (int) relFlagsAsLong;
         tempRelFlags.ints[1] = (int) (relFlagsAsLong >> 32);

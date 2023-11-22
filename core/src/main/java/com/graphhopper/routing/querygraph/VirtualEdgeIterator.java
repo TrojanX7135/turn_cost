@@ -36,6 +36,7 @@ class VirtualEdgeIterator implements EdgeIterator {
     private List<EdgeIteratorState> edges;
     private int current;
 
+
     VirtualEdgeIterator(EdgeFilter edgeFilter, List<EdgeIteratorState> edges) {
         this.edges = edges;
         this.current = -1;
