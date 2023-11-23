@@ -207,9 +207,9 @@ public class RouteResource {
         // Cập nhật xem xét điều kiện thời gian
         List <ReaderWay> conditionalWaysList= this.graphHopper.getReader().getWaysegment().getConditionalWays_list();
         for (ReaderWay readerWay : conditionalWaysList) {
-            List<Integer> b = this.graphHopper.getReader().getEgdeFromWay(readerWay.getId());
+            List<Integer> listEdges = this.graphHopper.getReader().getEgdeFromWay(readerWay.getId());
             IntsRef relationFlags = this.graphHopper.getReader().getRelFlagsMap(readerWay.getId());
-            for (Integer integer : b) {
+            for (Integer integer : listEdges) {
                 this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
             }
         }
