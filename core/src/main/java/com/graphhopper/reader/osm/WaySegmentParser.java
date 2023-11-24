@@ -82,11 +82,6 @@ public class WaySegmentParser {
     private final OSMNodeData nodeData;
     private Date timestamp;
 
-    public ReaderWay getWay(int index)
-    {
-        return readerWays_list.get(index);
-    }
-
     public List <ReaderWay> getConditionalWays_list()
     {
         List <ReaderWay> ConditionalWays_list = new ArrayList<>();

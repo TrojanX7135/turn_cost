@@ -678,8 +678,7 @@ public class OSMReader {
     }
 
     private void releaseRestrictionData() {
-        // Sửa đổi
-        //restrictedWaysToEdgesMap = null;
+        restrictedWaysToEdgesMap = null;
         restrictionRelations = null;
     }
 

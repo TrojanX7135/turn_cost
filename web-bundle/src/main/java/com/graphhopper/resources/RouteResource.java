@@ -213,7 +213,7 @@ public class RouteResource {
                 this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
             }
         }
-        this.graphHopper.flush();
+
         GHResponse ghResponse = graphHopper.route(request);
 
         boolean instructions = request.getHints().getBool(INSTRUCTIONS, true);
