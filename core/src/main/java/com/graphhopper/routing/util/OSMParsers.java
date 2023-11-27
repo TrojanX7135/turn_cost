@@ -60,19 +60,17 @@ public class OSMParsers {
         return this;
     }
 
-    // Update graph
-    // List<TagParser>
-    public  void setWayTagParser(String newday)
+    private TagParser getConditionalWayTagParser()
     {
+        TagParser defaultTag = null;
         for(TagParser item : this.wayTagParsers)
         {
             if (item.getClass() == OSMConditionalRestrictionsParser.class)
             {
-                System.out.println("alo");
-                //item.setparset(newday);
+                return item;
             }
         }
-//        return this.wayTagParsers;
+        return defaultTag;
     }
 
     public OSMParsers addRelationTagParser(Function<EncodedValue.InitializerConfig, RelationTagParser> createRelationTagParser) {
@@ -114,6 +112,14 @@ public class OSMParsers {
             relParser.handleWayTags(edgeId, edgeIntAccess, way, relationFlags);
         for (TagParser parser : wayTagParsers)
             parser.handleWayTags(edgeId, edgeIntAccess, way, relationFlags);
+    }
+
+    public void handleSpecialConditionalWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags) {
+        TagParser parser = this.getConditionalWayTagParser();
+        if(parser != null)
+        {
+            parser.handleWayTags(edgeId, edgeIntAccess, way, relationFlags);
+        }
     }
 
     public IntsRef createRelationFlags() {
