@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.graphhopper.jackson.CustomModelAreasDeserializer;
 import com.graphhopper.json.Statement;
-import javax.script.ScriptException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,8 +35,7 @@ public class CustomModel {
     private boolean internal;
     private List<Statement> speedStatements = new ArrayList<>();
     private List<Statement> priorityStatements = new ArrayList<>();
-//    private List<Statement> turnCostsConfig = new ArrayList<>(); //Minh code
-    private TurnCostsConfig turnCostsConfig = new TurnCostsConfig(); // đây là nơi cần để chỉnh sửa việc đọc turnCosts 
+    private TurnCostsConfig turnCostsConfig = new TurnCostsConfig();
     private JsonFeatureCollection areas = new JsonFeatureCollection();
 
     public CustomModel() {
@@ -138,7 +136,7 @@ public class CustomModel {
         return areas;
     }
 
-    @JsonProperty("turn_costs_custom")
+    @JsonProperty("turn_costs")
     public CustomModel setTurnCostsConfig(TurnCostsConfig turnCostsConfig) {
         this.turnCostsConfig = turnCostsConfig;
         return this;
@@ -199,59 +197,22 @@ public class CustomModel {
         mergedCM.addAreas(queryModel.getAreas());
         return mergedCM;
     }
-    
-    // theo TurnCost mới
+
     public void checkTurnCostConfigForLM(TurnCostsConfig baseModelTCConfig) {
-        for (int i = 0; i < turnCostsConfig.getTurnCosts().size(); i++) {
-            TurnCostRule rule = turnCostsConfig.getTurnCosts().get(i);
-            TurnCostRule baseRule = baseModelTCConfig.getTurnCosts().get(i);
+        if (turnCostsConfig.getLeftCost() < baseModelTCConfig.getLeftCost())
+            throw new IllegalArgumentException("left turn cost can only increase but was " + turnCostsConfig.getLeftCost() + " < " + baseModelTCConfig.getLeftCost());
+        if (turnCostsConfig.getRightCost() < baseModelTCConfig.getRightCost())
+            throw new IllegalArgumentException("right turn cost can only increase but was " + turnCostsConfig.getRightCost() + " < " + baseModelTCConfig.getRightCost());
+        if (turnCostsConfig.getStraightCost() < baseModelTCConfig.getStraightCost())
+            throw new IllegalArgumentException("straight costs can only increase but was " + turnCostsConfig.getStraightCost() + " < " + baseModelTCConfig.getStraightCost());
 
-            try {
-                // Kiểm tra chi phí rẽ trái, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-                if (rule.getLeft() < baseRule.getLeft())
-                    throw new IllegalArgumentException("left turn cost can only increase but was " + rule.getLeft() + " < " + baseRule.getLeft());
-
-                // Kiểm tra chi phí rẽ phải, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-                if (rule.getRight() < baseRule.getRight())
-                    throw new IllegalArgumentException("right turn cost can only increase but was " + rule.getRight() + " < " + baseRule.getRight());
-
-                // Kiểm tra chi phí đi thẳng, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-                if (rule.getStraight() < baseRule.getStraight())
-                    throw new IllegalArgumentException("straight costs can only increase but was " + rule.getStraight() + " < " + baseRule.getStraight());
-            } catch (ScriptException e) {
-                e.printStackTrace();
-            }
-            
-            if (turnCostsConfig.getMaxLeftAngle() != baseModelTCConfig.getMaxLeftAngle())
-            	throw new IllegalArgumentException("max left angle must be identical but was " + turnCostsConfig.getMaxLeftAngle() + "!=" + baseModelTCConfig.getMaxLeftAngle());
-			if (turnCostsConfig.getMinLeftAngle() != baseModelTCConfig.getMinLeftAngle())
-			    throw new IllegalArgumentException("min left angle must be identical but was " + turnCostsConfig.getMinLeftAngle() + "!=" + baseModelTCConfig.getMinLeftAngle());
-			if (turnCostsConfig.getMaxRightAngle() != baseModelTCConfig.getMaxRightAngle())
-			    throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMaxRightAngle() + "!=" + baseModelTCConfig.getMaxRightAngle());
-			if (turnCostsConfig.getMinRightAngle() != baseModelTCConfig.getMinRightAngle())
-			    throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMinRightAngle() + "!=" + baseModelTCConfig.getMinRightAngle());
-        }
+        if (turnCostsConfig.getMaxLeftAngle() != baseModelTCConfig.getMaxLeftAngle())
+            throw new IllegalArgumentException("max left angle must be identical but was " + turnCostsConfig.getMaxLeftAngle() + "!=" + baseModelTCConfig.getMaxLeftAngle());
+        if (turnCostsConfig.getMinLeftAngle() != baseModelTCConfig.getMinLeftAngle())
+            throw new IllegalArgumentException("min left angle must be identical but was " + turnCostsConfig.getMinLeftAngle() + "!=" + baseModelTCConfig.getMinLeftAngle());
+        if (turnCostsConfig.getMaxRightAngle() != baseModelTCConfig.getMaxRightAngle())
+            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMaxRightAngle() + "!=" + baseModelTCConfig.getMaxRightAngle());
+        if (turnCostsConfig.getMinRightAngle() != baseModelTCConfig.getMinRightAngle())
+            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMinRightAngle() + "!=" + baseModelTCConfig.getMinRightAngle());
     }
-
-
-//    public void checkTurnCostConfigForLM(TurnCostsConfig baseModelTCConfig) {
-//        // Kiểm tra chi phí rẽ trái, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-//        if (turnCostsConfig.getLeftCost() < baseModelTCConfig.getLeftCost())
-//            throw new IllegalArgumentException("left turn cost can only increase but was " + turnCostsConfig.getLeftCost() + " < " + baseModelTCConfig.getLeftCost());
-//        // Kiểm tra chi phí rẽ phải, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-//        if (turnCostsConfig.getRightCost() < baseModelTCConfig.getRightCost())
-//            throw new IllegalArgumentException("right turn cost can only increase but was " + turnCostsConfig.getRightCost() + " < " + baseModelTCConfig.getRightCost());        
-//        // Kiểm tra chi phí đi thẳng, nếu nhỏ hơn chi phí cơ sở thì ném ra ngoại lệ
-//        if (turnCostsConfig.getStraightCost() < baseModelTCConfig.getStraightCost())
-//            throw new IllegalArgumentException("straight costs can only increase but was " + turnCostsConfig.getStraightCost() + " < " + baseModelTCConfig.getStraightCost());
-//
-//        if (turnCostsConfig.getMaxLeftAngle() != baseModelTCConfig.getMaxLeftAngle())
-//            throw new IllegalArgumentException("max left angle must be identical but was " + turnCostsConfig.getMaxLeftAngle() + "!=" + baseModelTCConfig.getMaxLeftAngle());
-//        if (turnCostsConfig.getMinLeftAngle() != baseModelTCConfig.getMinLeftAngle())
-//            throw new IllegalArgumentException("min left angle must be identical but was " + turnCostsConfig.getMinLeftAngle() + "!=" + baseModelTCConfig.getMinLeftAngle());
-//        if (turnCostsConfig.getMaxRightAngle() != baseModelTCConfig.getMaxRightAngle())
-//            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMaxRightAngle() + "!=" + baseModelTCConfig.getMaxRightAngle());
-//        if (turnCostsConfig.getMinRightAngle() != baseModelTCConfig.getMinRightAngle())
-//            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMinRightAngle() + "!=" + baseModelTCConfig.getMinRightAngle());
-//    }
 }

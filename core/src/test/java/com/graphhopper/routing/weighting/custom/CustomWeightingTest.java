@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.*;
 
 import static com.graphhopper.json.Statement.*;
 import static com.graphhopper.json.Statement.Op.LIMIT;
@@ -427,18 +426,9 @@ class CustomWeightingTest {
         turnGraph.getNodeAccess().setNode(5, 51.0366, 13.726);
         turnGraph.getNodeAccess().setNode(6, 51.0358, 13.726);
 
-//        Profile profile = new Profile("car");
-//        TurnCostsConfig config = new TurnCostsConfig().
-//                setLeft(6);
-
         Profile profile = new Profile("car");
-        TurnCostRule rule = new TurnCostRule();
-        rule.setLeft(Integer.toString(6));
-        List<TurnCostRule> turnCosts = new ArrayList<>();
-        turnCosts.add(rule);
-        TurnCostsConfig config = new TurnCostsConfig();
-        config.setTurnCosts(turnCosts);       
-        
+        TurnCostsConfig config = new TurnCostsConfig().
+                setLeftCost(6);
         profile.setCustomModel(new CustomModel().setTurnCostsConfig(config)).
                 setTurnCosts(true);
         Weighting weighting = new DefaultWeightingFactory(turnGraph, em).createWeighting(profile, new PMap(), false);

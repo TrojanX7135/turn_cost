@@ -19,6 +19,7 @@ package com.graphhopper.resources;
 
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
+import com.graphhopper.GlobalVariables;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.gpx.GpxConversions;
 import com.graphhopper.http.GHPointParam;
@@ -44,6 +45,8 @@ import java.util.Map;
 import static com.graphhopper.util.Parameters.Details.PATH_DETAILS;
 import static com.graphhopper.util.Parameters.Routing.*;
 import static java.util.stream.Collectors.toList;
+
+import java.time.LocalDateTime;
 
 /**
  * Resource to use GraphHopper in a remote client application like mobile or browser. Note: If type
@@ -168,7 +171,10 @@ public class RouteResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPost(@NotNull GHRequest request, @Context HttpServletRequest httpReq) {
-        StopWatch sw = new StopWatch().start();
+        
+    	GlobalVariables.setTimeRequest(LocalDateTime.now());
+    	
+    	StopWatch sw = new StopWatch().start();
         request = ghRequestTransformer.transformRequest(request);
 
         if (Helper.isEmpty(request.getProfile()) && request.getCustomModel() != null)

@@ -34,35 +34,28 @@ import com.graphhopper.util.GHUtility;
  * @author Michael Zilske
  */
 public class TurnCostStorage {
-    // Không có mục nhập quay
     static final int NO_TURN_ENTRY = -1;
-    // chúng tôi lưu trữ mỗi mục nhập chi phí quay theo định dạng |from_edge|to_edge|flags|next|. mỗi mục nhập có 4 byte -> tổng cộng 16 byte
+    // we store each turn cost entry in the format |from_edge|to_edge|flags|next|. each entry has 4 bytes -> 16 bytes total
     private static final int TC_FROM = 0;
     private static final int TC_TO = 4;
     private static final int TC_FLAGS = 8;
     private static final int TC_NEXT = 12;
     private static final int BYTES_PER_ENTRY = 16;
 
-    // Đồ thị cơ sở
     private final BaseGraph baseGraph;
-    // Chi phí quay
     private final DataAccess turnCosts;
-    // Số lượng chi phí quay
     private int turnCostsCount;
 
-    // Hàm khởi tạo
     public TurnCostStorage(BaseGraph baseGraph, DataAccess turnCosts) {
         this.baseGraph = baseGraph;
         this.turnCosts = turnCosts;
     }
 
-    // Tạo bộ nhớ cho chi phí quay
     public TurnCostStorage create(long initBytes) {
         turnCosts.create(initBytes);
         return this;
     }
 
-    // Đẩy dữ liệu vào bộ nhớ
     public void flush() {
         turnCosts.setHeader(0, Constants.VERSION_TURN_COSTS);
         turnCosts.setHeader(4, BYTES_PER_ENTRY);
@@ -70,17 +63,14 @@ public class TurnCostStorage {
         turnCosts.flush();
     }
 
-    // Đóng bộ nhớ
     public void close() {
         turnCosts.close();
     }
 
-    // Lấy dung lượng bộ nhớ
     public long getCapacity() {
         return turnCosts.getCapacity();
     }
 
-    // Tải dữ liệu đã tồn tại
     public boolean loadExisting() {
         if (!turnCosts.loadExisting())
             return false;
@@ -93,8 +83,6 @@ public class TurnCostStorage {
         return true;
     }
 
-
-    // Đặt giá trị cho BooleanEncodedValue
     public void set(BooleanEncodedValue bev, int fromEdge, int viaNode, int toEdge, boolean value) {
         long pointer = findOrCreateTurnCostEntry(fromEdge, viaNode, toEdge);
         if (pointer < 0)
@@ -102,7 +90,9 @@ public class TurnCostStorage {
         bev.setBool(false, -1, createIntAccess(pointer), value);
     }
 
-    // Đặt chi phí quay tại viaNode khi đi từ "fromEdge" đến "toEdge"
+    /**
+     * Sets the turn cost at the viaNode when going from "fromEdge" to "toEdge"
+     */
     public void set(DecimalEncodedValue turnCostEnc, int fromEdge, int viaNode, int toEdge, double cost) {
         long pointer = findOrCreateTurnCostEntry(fromEdge, viaNode, toEdge);
         if (pointer < 0)
@@ -110,11 +100,10 @@ public class TurnCostStorage {
         turnCostEnc.setDecimal(false, -1, createIntAccess(pointer), cost);
     }
 
-    // Tìm hoặc tạo mục nhập chi phí quay
     private long findOrCreateTurnCostEntry(int fromEdge, int viaNode, int toEdge) {
         long pointer = findPointer(fromEdge, viaNode, toEdge);
         if (pointer < 0) {
-            // tạo một mục nhập mới
+            // create a new entry
             ensureTurnCostIndex(turnCostsCount);
             int prevIndex = baseGraph.getNodeAccess().getTurnCostIndex(viaNode);
             baseGraph.getNodeAccess().setTurnCostIndex(viaNode, turnCostsCount);
@@ -127,17 +116,14 @@ public class TurnCostStorage {
         return pointer;
     }
 
-    // Lấy giá trị DecimalEncodedValue
     public double get(DecimalEncodedValue dev, int fromEdge, int viaNode, int toEdge) {
         return dev.getDecimal(false, -1, createIntAccess(findPointer(fromEdge, viaNode, toEdge)));
     }
 
-    // Lấy giá trị BooleanEncodedValue
     public boolean get(BooleanEncodedValue bev, int fromEdge, int viaNode, int toEdge) {
         return bev.getBool(false, -1, createIntAccess(findPointer(fromEdge, viaNode, toEdge)));
     }
 
-    // Tạo truy cập Int cho cạnh
     private EdgeIntAccess createIntAccess(long pointer) {
         return new EdgeIntAccess() {
             @Override
@@ -154,12 +140,10 @@ public class TurnCostStorage {
         };
     }
 
-    // Đảm bảo chỉ số chi phí quay
     private void ensureTurnCostIndex(int nodeIndex) {
         turnCosts.ensureCapacity(((long) nodeIndex + 4) * BYTES_PER_ENTRY);
     }
 
-    // Tìm con trỏ
     private long findPointer(int fromEdge, int viaNode, int toEdge) {
         if (!EdgeIterator.Edge.isValid(fromEdge) || !EdgeIterator.Edge.isValid(toEdge))
             throw new IllegalArgumentException("from and to edge cannot be NO_EDGE");
@@ -178,12 +162,10 @@ public class TurnCostStorage {
         throw new IllegalStateException("Turn cost list for node: " + viaNode + " is longer than expected, max: " + maxEntries);
     }
 
-    // Kiểm tra xem bộ nhớ có đóng không
     public boolean isClosed() {
         return turnCosts.isClosed();
     }
 
-    // Trả về chuỗi "turn_cost"
     @Override
     public String toString() {
         return "turn_cost";
@@ -197,13 +179,10 @@ public class TurnCostStorage {
      *
      * @return an iterator over all entries.
      */
-    
-    // Trả về một iterator trên tất cả các mục nhập.
     public Iterator getAllTurnCosts() {
         return new Itr();
     }
 
-    // Interface Iterator
     public interface Iterator {
         int getFromEdge();
 
@@ -218,52 +197,43 @@ public class TurnCostStorage {
         boolean next();
     }
 
-    // Lớp Itr triển khai interface Iterator
     private class Itr implements Iterator {
-        // Khởi tạo các biến
         private int viaNode = -1;
         private int turnCostIndex = -1;
         private final IntsRef intsRef = new IntsRef(1);
         private final EdgeIntAccess edgeIntAccess = new IntsRefEdgeIntAccess(intsRef);
 
-        // Trả về con trỏ chi phí quay
         private long turnCostPtr() {
             return (long) turnCostIndex * BYTES_PER_ENTRY;
         }
 
-        // Trả về cạnh từ
         @Override
         public int getFromEdge() {
             return turnCosts.getInt(turnCostPtr() + TC_FROM);
         }
 
-        // Trả về nút qua
         @Override
         public int getViaNode() {
             return viaNode;
         }
 
-        // Trả về cạnh đến
         @Override
         public int getToEdge() {
             return turnCosts.getInt(turnCostPtr() + TC_TO);
         }
 
-        // Trả về giá trị BooleanEncodedValue
         @Override
         public boolean get(BooleanEncodedValue booleanEncodedValue) {
             intsRef.ints[0] = turnCosts.getInt(turnCostPtr() + TC_FLAGS);
             return booleanEncodedValue.getBool(false, -1, edgeIntAccess);
         }
 
-        // Trả về chi phí DecimalEncodedValue
         @Override
         public double getCost(DecimalEncodedValue encodedValue) {
             intsRef.ints[0] = turnCosts.getInt(turnCostPtr() + TC_FLAGS);
             return encodedValue.getDecimal(false, -1, edgeIntAccess);
         }
 
-        // Di chuyển đến mục nhập tiếp theo
         @Override
         public boolean next() {
             boolean gotNextTci = nextTci();
@@ -280,7 +250,6 @@ public class TurnCostStorage {
             return true;
         }
 
-        // Di chuyển đến nút tiếp theo
         private boolean nextNode() {
             viaNode++;
             if (viaNode >= baseGraph.getNodes()) {
@@ -290,7 +259,6 @@ public class TurnCostStorage {
             return true;
         }
 
-        // Di chuyển đến chỉ số chi phí quay tiếp theo
         private boolean nextTci() {
             if (turnCostIndex == NO_TURN_ENTRY) {
                 return false;
@@ -302,5 +270,6 @@ public class TurnCostStorage {
             return true;
         }
     }
+
 }
 

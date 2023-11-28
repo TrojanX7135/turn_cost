@@ -26,8 +26,6 @@ import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.TurnCostsConfig;
-import com.graphhopper.util.TurnCostRule;
-import javax.script.ScriptException;
 
 import static com.graphhopper.util.AngleCalc.ANGLE_CALC;
 
@@ -220,59 +218,20 @@ public final class CustomWeighting extends AbstractWeighting {
 
         return new TurnCostProvider() {
 
-//            @Override
-//            public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
-//                double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
-//                if (Double.isInfinite(weight)) return weight;
-//                double changeAngle = calcChangeAngle(inEdge, viaNode, outEdge, graph, orientationEnc);
-//                if (changeAngle > minRightInRad && changeAngle < minLeftInRad)
-//                    return tcConfig.getStraightCost();
-//                else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad)
-//                    return tcConfig.getLeftCost();
-//                else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad)
-//                    return tcConfig.getRightCost();
-//                else return Double.POSITIVE_INFINITY; // too sharp turn
-//            }
+            @Override
+            public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
+                double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
+                if (Double.isInfinite(weight)) return weight;
+                double changeAngle = calcChangeAngle(inEdge, viaNode, outEdge, graph, orientationEnc);
+                if (changeAngle > minRightInRad && changeAngle < minLeftInRad)
+                    return tcConfig.getStraightCost();
+                else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad)
+                    return tcConfig.getLeftCost();
+                else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad)
+                    return tcConfig.getRightCost();
+                else return Double.POSITIVE_INFINITY; // too sharp turn
+            }
 
-        	public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
-        	    double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
-        	    if (Double.isInfinite(weight)) return weight;
-        	    double changeAngle = calcChangeAngle(inEdge, viaNode, outEdge, graph, orientationEnc);
-
-        	    for (TurnCostRule rule : tcConfig.getTurnCosts()) {
-        	        try {
-        	            if (changeAngle > minRightInRad && changeAngle < minLeftInRad)
-        	                return rule.getStraight();
-        	            else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad)
-        	                return rule.getLeft();
-        	            else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad)
-        	                return rule.getRight();
-        	        } catch (ScriptException e) {
-        	            e.printStackTrace();
-        	        }
-        	    }
-       	    
-        	    
-//        	    for (TurnCostRule rule : tcConfig.getTurnCosts()) {
-//        	        if (evaluateCondition(rule.getCondition(), inEdge, viaNode, outEdge)) {
-//        	            if (changeAngle > minRightInRad && changeAngle < minLeftInRad)
-//        	                return rule.getStraight();
-//        	            else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad)
-//        	                return rule.getLeft();
-//        	            else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad)
-//        	                return rule.getRight();
-//        	        }
-//        	    }
-
-        	    return Double.POSITIVE_INFINITY; // too sharp turn
-        	}
-
-//        	private boolean evaluateCondition(String condition, int inEdge, int viaNode, int outEdge) {
-//        	    // Evaluate the condition based on the properties of the edges and node.
-//        	    // This will depend on how you've defined your conditions.
-//        	}
-        	
-        	
             @Override
             public long calcTurnMillis(int inEdge, int viaNode, int outEdge) {
                 long millis = (long) (1000 * calcTurnWeight(inEdge, viaNode, outEdge));

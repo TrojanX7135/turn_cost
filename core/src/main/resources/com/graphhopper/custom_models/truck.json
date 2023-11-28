@@ -16,10 +16,5 @@
   "speed": [
     { "if": "true", "limit_to": "car_average_speed * 0.9" },
     { "if": "true", "limit_to": "95" }
-  ],
-  "turn_costs": {
-    "straight": 1,
-    "left": 10000,
-    "right": 1
-  }
+  ]
 }

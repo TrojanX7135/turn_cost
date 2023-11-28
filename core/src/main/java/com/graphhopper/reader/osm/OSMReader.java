@@ -74,32 +74,11 @@ import static java.util.Collections.emptyList;
  * into several segments that are divided by intersections or barrier nodes. Each segment is added as an edge of the
  * resulting graph. Afterwards we scan the relations again to determine turn restrictions.
  **/
-/**
- * Chúng ta đang phân tích một tệp OSM (có thể là xml, xml đã nén hoặc pbf) để tạo ra một đồ thị. 
- * Quá trình này sẽ đọc tệp OSM hai lần.
- * 
- * Trong lần đọc đầu tiên, 
- * chúng ta xác định 'loại' của mỗi nút. 
- * Cụ thể, chúng ta kiểm tra xem một nút có chỉ xuất hiện trong một đường duy nhất hay không, 
- * hay nó có là điểm giao nhau của nhiều đường, 
- * hoặc nó có kết nối hai đường với nhau hay không. 
- * Chúng ta cũng quét qua các mối quan hệ và lưu chúng lại dựa trên ID của mỗi đường.
- * 
- * Trong lần đọc thứ hai, 
- * chúng ta lưu lại tọa độ của các nút thuộc về các đường và sau đó chia mỗi đường thành nhiều phân đoạn. 
- * Các phân đoạn này được chia bởi các điểm giao nhau hoặc các nút chướng ngại vật. 
- * Mỗi phân đoạn sẽ được thêm vào như một cạnh của đồ thị kết quả. 
- * Sau cùng, chúng ta quét lại các mối quan hệ để xác định các hạn chế về lượt.
- **/
-
 public class OSMReader {
-    // Khởi tạo logger
     private static final Logger LOGGER = LoggerFactory.getLogger(OSMReader.class);
 
-    // Khởi tạo một pattern để tách tên của các đường
     private static final Pattern WAY_NAME_PATTERN = Pattern.compile("; *");
 
-    // Các biến cần thiết cho việc đọc file OSM và xử lý dữ liệu
     private final OSMReaderConfig config;
     private final BaseGraph baseGraph;
     private final EdgeIntAccess edgeIntAccess;
@@ -114,17 +93,14 @@ public class OSMReader {
     private File osmFile;
     private final RamerDouglasPeucker simplifyAlgo = new RamerDouglasPeucker();
 
-    // Các biến tạm thời và bộ nhớ đệm
     private final IntsRef tempRelFlags;
     private Date osmDataDate;
     private long zeroCounter = 0;
 
-    // Các biến lưu trữ thông tin về các quan hệ và cạnh trong đồ thị
     private GHLongLongHashMap osmWayIdToRelationFlagsMap = new GHLongLongHashMap(200, .5f);
     private WayToEdgesMap restrictedWaysToEdgesMap = new WayToEdgesMap();
     private List<ReaderRelation> restrictionRelations = new ArrayList<>();
 
-    // Hàm khởi tạo cho lớp OSMReader
     public OSMReader(BaseGraph baseGraph, OSMParsers osmParsers, OSMReaderConfig config) {
         this.baseGraph = baseGraph;
         this.edgeIntAccess = baseGraph.createEdgeIntAccess();
@@ -139,13 +115,12 @@ public class OSMReader {
 
         tempRelFlags = osmParsers.createRelationFlags();
         if (tempRelFlags.length != 2)
-            // Chúng ta hiện đang sử dụng một giá trị long để lưu trữ các cờ quan hệ, vì vậy các cờ quan hệ ints ref phải có độ dài là 2
-            throw new IllegalArgumentException("OSMReader không thể sử dụng các cờ quan hệ với số nguyên khác 2");
+            // we use a long to store relation flags currently, so the relation flags ints ref must have length 2
+            throw new IllegalArgumentException("OSMReader cannot use relation flags with != 2 integers");
     }
 
-
     /**
-     * Đặt tệp OSM để đọc. Các định dạng được hỗ trợ bao gồm .osm.xml, .osm.gz và .xml.pbf
+     * Sets the OSM file to be read.  Supported formats include .osm.xml, .osm.gz and .xml.pbf
      */
     public OSMReader setFile(File osmFile) {
         this.osmFile = osmFile;
@@ -153,7 +128,7 @@ public class OSMReader {
     }
 
     /**
-     * Chỉ mục khu vực được truy vấn cho mỗi cách OSM và các khu vực liên quan được thêm vào các thẻ của cách
+     * The area index is queried for each OSM way and the associated areas are added to the way's tags
      */
     public OSMReader setAreaIndex(AreaIndex<CustomArea> areaIndex) {
         this.areaIndex = areaIndex;
@@ -162,10 +137,10 @@ public class OSMReader {
 
     public OSMReader setElevationProvider(ElevationProvider eleProvider) {
         if (eleProvider == null)
-            throw new IllegalStateException("Sử dụng nhà cung cấp độ cao NOOP thay vì null hoặc không gọi setElevationProvider");
+            throw new IllegalStateException("Use the NOOP elevation provider instead of null or don't call setElevationProvider");
 
         if (!nodeAccess.is3D() && ElevationProvider.NOOP != eleProvider)
-            throw new IllegalStateException("Đảm bảo rằng đồ thị của bạn chấp nhận dữ liệu 3D");
+            throw new IllegalStateException("Make sure you graph accepts 3D data");
 
         this.eleProvider = eleProvider;
         return this;
@@ -178,16 +153,16 @@ public class OSMReader {
 
     public void readGraph() throws IOException {
         if (osmParsers == null)
-            throw new IllegalStateException("Các trình phân tích thẻ không được đặt.");
+            throw new IllegalStateException("Tag parsers were not set.");
 
         if (osmFile == null)
-            throw new IllegalStateException("Không có tệp OSM nào được chỉ định");
+            throw new IllegalStateException("No OSM file specified");
 
         if (!osmFile.exists())
-            throw new IllegalStateException("Tệp OSM bạn chỉ định không tồn tại:" + osmFile.getAbsolutePath());
+            throw new IllegalStateException("Your specified OSM file does not exist:" + osmFile.getAbsolutePath());
 
         if (!baseGraph.isInitialized())
-            throw new IllegalStateException("BaseGraph phải được khởi tạo trước khi chúng ta có thể đọc OSM");
+            throw new IllegalStateException("BaseGraph must be initialize before we can read OSM");
 
         WaySegmentParser waySegmentParser = new WaySegmentParser.Builder(baseGraph.getNodeAccess(), baseGraph.getDirectory())
                 .setElevationProvider(eleProvider)
@@ -202,32 +177,31 @@ public class OSMReader {
         waySegmentParser.readOSM(osmFile);
         osmDataDate = waySegmentParser.getTimeStamp();
         if (baseGraph.getNodes() == 0)
-            throw new RuntimeException("Đồ thị sau khi đọc OSM không được để trống");
+            throw new RuntimeException("Graph after reading OSM must not be empty");
         releaseEverythingExceptRestrictionData();
         addRestrictionsToGraph();
         releaseRestrictionData();
-        LOGGER.info("Đã hoàn thành việc đọc tệp OSM: {}, nodes: {}, edges: {}, zero distance edges: {}",
+        LOGGER.info("Finished reading OSM file: {}, nodes: {}, edges: {}, zero distance edges: {}",
                 osmFile.getAbsolutePath(), nf(baseGraph.getNodes()), nf(baseGraph.getEdges()), nf(zeroCounter));
     }
 
-
     /**
-     * @return thời gian được ghi trong tiêu đề tệp OSM hoặc null nếu không tìm thấy
+     * @return the timestamp given in the OSM file header or null if not found
      */
     public Date getDataDate() {
         return osmDataDate;
     }
 
     /**
-     * Phương thức này được gọi cho mỗi cách trong lần đầu tiên và lần thứ hai của {@link WaySegmentParser}. Tất cả OSM
-     * các cách không được chấp nhận ở đây và tất cả các nút không được tham chiếu bởi bất kỳ cách nào như vậy sẽ bị bỏ qua.
+     * This method is called for each way during the first and second pass of the {@link WaySegmentParser}. All OSM
+     * ways that are not accepted here and all nodes that are not referenced by any such way will be ignored.
      */
     protected boolean acceptWay(ReaderWay way) {
-        // bỏ qua hình học bị hỏng
+        // ignore broken geometry
         if (way.getNodes().size() < 2)
             return false;
 
-        // bỏ qua hình học đa giác
+        // ignore multipolygon geometry
         if (!way.hasTags())
             return false;
 
@@ -235,15 +209,15 @@ public class OSMReader {
     }
 
     /**
-     * @return true nếu nút đã cho nên được nhân đôi để tạo một cạnh nhân tạo. Nếu nút trở thành một
-     * giao điểm giữa các cách khác nhau, điều này sẽ bị bỏ qua và không có cạnh nhân tạo nào sẽ được tạo.
+     * @return true if the given node should be duplicated to create an artificial edge. If the node turns out to be a
+     * junction between different ways this will be ignored and no artificial edge will be created.
      */
     protected boolean isBarrierNode(ReaderNode node) {
         return node.hasTag("barrier") || node.hasTag("ford");
     }
 
     /**
-     * @return true nếu chiều dài của cách phải được tính toán và thêm vào như một thẻ cách nhân tạo
+     * @return true if the length of the way shall be calculated and added as an artificial way tag
      */
     protected boolean isCalculateWayDistance(ReaderWay way) {
         return isFerry(way);
@@ -254,16 +228,16 @@ public class OSMReader {
     }
 
     /**
-     * Phương thức này được gọi trong lần thứ hai của {@link WaySegmentParser} và cung cấp một điểm vào để làm giàu
-     * các thẻ OSM đã cho với các thẻ bổ sung trước khi nó được chuyển tiếp đến các trình phân tích thẻ.
+     * This method is called during the second pass of {@link WaySegmentParser} and provides an entry point to enrich
+     * the given OSM way with additional tags before it is passed on to the tag parsers.
      */
     protected void setArtificialWayTags(PointList pointList, ReaderWay way, double distance, List<Map<String, Object>> nodeTags) {
         way.setTag("node_tags", nodeTags);
         way.setTag("edge_distance", distance);
         way.setTag("point_list", pointList);
 
-        // chúng ta phải xóa các thẻ nhân tạo hiện có, vì chúng ta sửa đổi cách mặc dù có thể có nhiều cạnh
-        // theo cách. sớm hay muộn chúng ta nên tách các thẻ nhân tạo ('edge') khỏi cách, xem cuộc thảo luận ở đây:
+        // we have to remove existing artificial tags, because we modify the way even though there can be multiple edges
+        // per way. sooner or later we should separate the artificial ('edge') tags from the way, see discussion here:
         // https://github.com/graphhopper/graphhopper/pull/2457#discussion_r751155404
         way.removeTag("country");
         way.removeTag("country_rule");
@@ -287,30 +261,29 @@ public class OSMReader {
             customAreas = emptyList();
         }
 
-
-        // xử lý đặc biệt cho các quốc gia: vì chúng được tích hợp sẵn với GraphHopper nên chúng luôn được cung cấp cho EncodingManager
+        // special handling for countries: since they are built-in with GraphHopper they are always fed to the EncodingManager
         Country country = Country.MISSING;
         State state = State.MISSING;
         double countryArea = Double.POSITIVE_INFINITY;
         for (CustomArea customArea : customAreas) {
-            // bỏ qua các khu vực không phải là quốc gia
+            // ignore areas that aren't countries
             if (customArea.getProperties() == null) continue;
             String alpha2WithSubdivision = (String) customArea.getProperties().get(State.ISO_3166_2);
             if (alpha2WithSubdivision == null)
                 continue;
 
-            // chuỗi quốc gia phải là một cái gì đó giống như US-CA (bao gồm phân khu) hoặc chỉ DE
+            // the country string must be either something like US-CA (including subdivision) or just DE
             String[] strs = alpha2WithSubdivision.split("-");
             if (strs.length == 0 || strs.length > 2)
-                throw new IllegalStateException("Alpha2 không hợp lệ: " + alpha2WithSubdivision);
+                throw new IllegalStateException("Invalid alpha2: " + alpha2WithSubdivision);
             Country c = Country.find(strs[0]);
             if (c == null)
-                throw new IllegalStateException("Quốc gia không xác định: " + strs[0]);
+                throw new IllegalStateException("Unknown country: " + strs[0]);
 
             if (
-                // các quốc gia có phân khu vượt trội hơn những quốc gia không có phân khu cũng như những quốc gia lớn hơn có phân khu
+                // countries with subdivision overrule those without subdivision as well as bigger ones with subdivision
                     strs.length == 2 && (state == State.MISSING || customArea.getArea() < countryArea)
-                            // các quốc gia không có phân khu chỉ vượt trội hơn những quốc gia lớn hơn không có phân khu
+                            // countries without subdivision only overrule bigger ones without subdivision
                             || strs.length == 1 && (state == State.MISSING && customArea.getArea() < countryArea)) {
                 country = c;
                 state = State.find(alpha2WithSubdivision);
@@ -326,45 +299,45 @@ public class OSMReader {
                 way.setTag("country_rule", countryRule);
         }
 
-        // cũng thêm tất cả các khu vực tùy chỉnh như thẻ nhân tạo
+        // also add all custom areas as artificial tag
         way.setTag("custom_areas", customAreas);
     }
 
     /**
-     * Phương thức này được gọi cho mỗi đoạn mà cách OSM được chia thành trong lần thứ hai của {@link WaySegmentParser}.
+     * This method is called for each segment an OSM way is split into during the second pass of {@link WaySegmentParser}.
      *
-     * @param fromIndex một id số nguyên duy nhất cho nút đầu tiên của đoạn này
-     * @param toIndex   một id số nguyên duy nhất cho nút cuối cùng của đoạn này
-     * @param pointList tọa độ của đoạn này
-     * @param way       cách OSM mà đoạn này được lấy từ
-     * @param nodeTags  các thẻ nút của đoạn này. có một bản đồ thẻ cho mỗi điểm.
+     * @param fromIndex a unique integer id for the first node of this segment
+     * @param toIndex   a unique integer id for the last node of this segment
+     * @param pointList coordinates of this segment
+     * @param way       the OSM way this segment was taken from
+     * @param nodeTags  node tags of this segment. there is one map of tags for each point.
      */
     protected void addEdge(int fromIndex, int toIndex, PointList pointList, ReaderWay way, List<Map<String, Object>> nodeTags) {
-        // kiểm tra hợp lệ
+        // sanity checks
         if (fromIndex < 0 || toIndex < 0)
-            throw new AssertionError("to hoặc from index không hợp lệ cho cạnh này " + fromIndex + "->" + toIndex + ", points:" + pointList);
+            throw new AssertionError("to or from index is invalid for this edge " + fromIndex + "->" + toIndex + ", points:" + pointList);
         if (pointList.getDimension() != nodeAccess.getDimension())
-            throw new AssertionError("Kích thước không khớp cho pointList so với nodeAccess " + pointList.getDimension() + " <-> " + nodeAccess.getDimension());
+            throw new AssertionError("Dimension does not match for pointList vs. nodeAccess " + pointList.getDimension() + " <-> " + nodeAccess.getDimension());
         if (pointList.size() != nodeTags.size())
-            throw new AssertionError("phải có nhiều bản đồ thẻ nút như có điểm. node tags: " + nodeTags.size() + ", points: " + pointList.size());
+            throw new AssertionError("there should be as many maps of node tags as there are points. node tags: " + nodeTags.size() + ", points: " + pointList.size());
 
-        // todo: về nguyên tắc, nó phải có thể trì hoãn việc tính toán độ cao để chúng ta không cần phải lưu trữ
-        // các độ cao trong quá trình nhập (tiết kiệm bộ nhớ trong thông tin cột trong quá trình nhập). cũng lưu ý rằng chúng ta đã phải
-        // để làm một số loại xử lý độ cao (nội suy cầu và hầm trong lớp GraphHopper, có thể điều này có thể
-        // đi cùng nhau
+        // todo: in principle it should be possible to delay elevation calculation so we do not need to store
+        // elevations during import (saves memory in pillar info during import). also note that we already need to
+        // to do some kind of elevation processing (bridge+tunnel interpolation in GraphHopper class, maybe this can
+        // go together
 
         if (pointList.is3D()) {
-            // lấy mẫu điểm dọc theo các cạnh dài
+            // sample points along long edges
             if (config.getLongEdgeSamplingDistance() < Double.MAX_VALUE)
                 pointList = EdgeSampling.sample(pointList, config.getLongEdgeSamplingDistance(), distCalc, eleProvider);
 
-            // làm mịn độ cao trước khi tính toán khoảng cách vì khoảng cách sẽ không chính xác nếu được tính sau
+            // smooth the elevation before calculating the distance because the distance will be incorrect if calculated afterwards
             if (config.getElevationSmoothing().equals("ramer"))
                 EdgeElevationSmoothingRamer.smooth(pointList, config.getElevationSmoothingRamerMax());
             else if (config.getElevationSmoothing().equals("moving_average"))
                 EdgeElevationSmoothingMovingAverage.smooth(pointList, config.getSmoothElevationAverageWindowSize());
             else if (!config.getElevationSmoothing().isEmpty())
-                throw new AssertionError("Thuật toán làm mịn độ cao không được hỗ trợ: '" + config.getElevationSmoothing() + "'");
+                throw new AssertionError("Unsupported elevation smoothing algorithm: '" + config.getElevationSmoothing() + "'");
         }
 
         if (config.getMaxWayPointDistance() > 0 && pointList.size() > 2)
@@ -373,23 +346,23 @@ public class OSMReader {
         double distance = distCalc.calcDistance(pointList);
 
         if (distance < 0.001) {
-            // Như điều tra cho thấy thường hai con đường nên đã giao nhau qua một điểm giống nhau
-            // nhưng kết thúc ở hai điểm rất gần.
+            // As investigation shows often two paths should have crossed via one identical point
+            // but end up in two very close points.
             zeroCounter++;
             distance = 0.001;
         }
 
         double maxDistance = (Integer.MAX_VALUE - 1) / 1000d;
         if (Double.isNaN(distance)) {
-            LOGGER.warn("Lỗi trong OSM hoặc GraphHopper. Khoảng cách nút tháp bất hợp pháp " + distance + " reset thành 1m, osm way " + way.getId());
+            LOGGER.warn("Bug in OSM or GraphHopper. Illegal tower node distance " + distance + " reset to 1m, osm way " + way.getId());
             distance = 1;
         }
 
         if (Double.isInfinite(distance) || distance > maxDistance) {
-            // Quá lớn là rất hiếm và thường là việc gắn thẻ sai. Xem #435
-            // vì vậy chúng ta có thể tránh sự phức tạp của việc chia cách cho bây giờ (cần các towernodes mới, chia hình học, v.v.)
-            // Ví dụ, điều này xảy ra ở đây: https://www.openstreetmap.org/way/672506453 (Phà Cape Town - Tristan da Cunha)
-            LOGGER.warn("Lỗi trong OSM hoặc GraphHopper. Khoảng cách nút tháp quá lớn " + distance + " reset thành giá trị lớn, osm way " + way.getId());
+            // Too large is very rare and often the wrong tagging. See #435
+            // so we can avoid the complexity of splitting the way for now (new towernodes would be required, splitting up geometry etc)
+            // For example this happens here: https://www.openstreetmap.org/way/672506453 (Cape Town - Tristan da Cunha ferry)
+            LOGGER.warn("Bug in OSM or GraphHopper. Too big tower node distance " + distance + " reset to large value, osm way " + way.getId());
             distance = maxDistance;
         }
 
@@ -401,10 +374,10 @@ public class OSMReader {
         if (!list.isEmpty())
             edge.setKeyValues(list);
 
-        // Nếu toàn bộ cách chỉ là điểm đầu tiên và cuối cùng, không lãng phí không gian lưu trữ hình học cách trống
+        // If the entire way is just the first and last point, do not waste space storing an empty way geometry
         if (pointList.size() > 2) {
-            // hình học chỉ bao gồm các nút cột, nhưng chúng tôi kiểm tra rằng các điểm đầu tiên và cuối cùng của pointList
-            // bằng với tọa độ nút tháp
+            // the geometry consists only of pillar nodes, but we check that the first and last points of the pointList
+            // are equal to the tower node coordinates
             checkCoordinates(fromIndex, pointList.get(0));
             checkCoordinates(toIndex, pointList.get(pointList.size() - 1));
             edge.setWayGeometry(pointList.shallowCopy(1, pointList.size() - 1, false));
@@ -417,7 +390,7 @@ public class OSMReader {
     private void checkCoordinates(int nodeIndex, GHPoint point) {
         final double tolerance = 1.e-6;
         if (Math.abs(nodeAccess.getLat(nodeIndex) - point.getLat()) > tolerance || Math.abs(nodeAccess.getLon(nodeIndex) - point.getLon()) > tolerance)
-            throw new IllegalStateException("Tọa độ đáng ngờ cho nút " + nodeIndex + ": (" + nodeAccess.getLat(nodeIndex) + "," + nodeAccess.getLon(nodeIndex) + ") so với (" + point + ")");
+            throw new IllegalStateException("Suspicious coordinates for node " + nodeIndex + ": (" + nodeAccess.getLat(nodeIndex) + "," + nodeAccess.getLon(nodeIndex) + ") vs. (" + point + ")");
     }
 
     private void checkDistance(EdgeIteratorState edge) {
@@ -425,12 +398,12 @@ public class OSMReader {
         final double edgeDistance = edge.getDistance();
         final double geometryDistance = distCalc.calcDistance(edge.fetchWayGeometry(FetchMode.ALL));
         if (Double.isInfinite(edgeDistance))
-            throw new IllegalStateException("Khoảng cách cạnh vô hạn không bao giờ xảy ra, vì chúng tôi được cho là giới hạn mỗi khoảng cách đến khoảng cách tối đa mà chúng tôi có thể lưu trữ, #435");
+            throw new IllegalStateException("Infinite edge distance should never occur, as we are supposed to limit each distance to the maximum distance we can store, #435");
         else if (edgeDistance > 2_000_000)
-            LOGGER.warn("Phát hiện cạnh rất dài: " + edge + " dist: " + edgeDistance);
+            LOGGER.warn("Very long edge detected: " + edge + " dist: " + edgeDistance);
         else if (Math.abs(edgeDistance - geometryDistance) > tolerance)
-            throw new IllegalStateException("Khoảng cách đáng ngờ cho cạnh: " + edge + " " + edgeDistance + " so với " + geometryDistance
-                    + ", sự khác biệt: " + (edgeDistance - geometryDistance));
+            throw new IllegalStateException("Suspicious distance for edge: " + edge + " " + edgeDistance + " vs. " + geometryDistance
+                    + ", difference: " + (edgeDistance - geometryDistance));
     }
 
     /**
