@@ -20,7 +20,7 @@ package com.graphhopper.routing.util.parsers;
 
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalValueParser;
-import com.graphhopper.reader.osm.conditional.TimeRangeParser;
+import com.graphhopper.reader.osm.conditional.DateTimeRangeParser;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -37,36 +37,28 @@ import com.graphhopper.reader.ReaderWay;
  * This parser fills the different XYAccessConditional enums from the OSM conditional restrictions.
  * Node tags will be ignored.
  */
-public class OSMConditionalRestrictionsParser implements TagParser {
-    //private List<ReaderWay> readerConditionalWays_list = new ArrayList<>();
-
-    private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsParser.class);
-    private final Collection<String> conditionals;
-    private final Setter restrictionSetter;
-    private TimeRangeParser parser;
+public class OSMConditionalRestrictionsTrafficParser implements TagParser{
+    private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsTrafficParser.class);
+    private final String conditionals;
+    private final SetterTraffic restrictionSetter;
+    private DateTimeRangeParser parser;
     private final boolean enabledLogs = false;
 
     @FunctionalInterface
-    public interface Setter {
+    public interface SetterTraffic {
         void setBoolean(int edgeId, EdgeIntAccess edgeIntAccess, boolean b);
     }
 
-    public OSMConditionalRestrictionsParser(Collection<String> conditionals, Setter restrictionSetter, String dateRangeParserDate) {
+    public OSMConditionalRestrictionsTrafficParser(String conditionals, SetterTraffic restrictionSetter, String dateRangeParserDate) {
         this.conditionals = conditionals;
         this.restrictionSetter = restrictionSetter;
         LocalDateTime current = LocalDateTime.now();
-        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
         dateRangeParserDate = current.format(formatter_date);
-        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
-
-//        LocalDateTime current = LocalDateTime.now();
-//        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
-//        dateRangeParserDate = current.format(formatter_date);
-//        String dateRangeParserTime = current.format(formatter_time);
-//        this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
-
-        System.out.println(dateRangeParserDate);
+        String dateRangeParserTime = current.format(formatter_time);
+        this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
+        System.out.println(dateRangeParserTime);
         System.out.println(parser.toString());
     }
 
@@ -75,7 +67,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         // TODO for now the node tag overhead is not worth the effort due to very few data points
         // List<Map<String, Object>> nodeTags = way.getTag("node_tags", null);
 
-        Boolean b = getConditional(way.getTags());
+        Boolean b = getTrafficConditional(way.getTags());
         if (b != null)
         {
             //this.readerConditionalWays_list.add(way);
@@ -83,7 +75,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
     }
 
-    Boolean getConditional(Map<String, Object> tags) {
+    Boolean getTrafficConditional(Map<String, Object> tags) {
         for (Map.Entry<String, Object> entry : tags.entrySet()) {
             if (!conditionals.contains(entry.getKey())) continue;
 
@@ -116,16 +108,11 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
         try {
             LocalDateTime current = LocalDateTime.now();
+            DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
+            String dateRangeParserDate = current.format(formatter_date);
             String dateRangeParserTime = current.format(formatter_time);
-            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
-
-//            LocalDateTime current = LocalDateTime.now();
-//            DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//            DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
-//            String dateRangeParserDate = current.format(formatter_date);
-//            String dateRangeParserTime = current.format(formatter_time);
-//            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
+            this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate, dateRangeParserTime);
 
             ConditionalValueParser.ConditionState res = parser.checkCondition(conditionalValue);
             if (res.isValid())
@@ -138,9 +125,4 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
         return false;
     }
-
-//    public ReaderWay getConditioanlWay(int index)
-//    {
-//        return readerConditionalWays_list.get(index);
-//    }
 }

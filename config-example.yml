@@ -29,7 +29,7 @@ graphhopper:
   # profiles (see below). Or at least limit the number of `routing.max_visited_nodes`.
   graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true
 #  graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true,bike|turn_costs=true
-  graph.encoded_values: toll,hgv,surface,max_width,max_height,curvature,track_type, car_access_conditional, traffic_stable
+  graph.encoded_values: toll,hgv,surface,max_width,max_height,curvature,track_type, car_access_conditional, traffic_conditional
   profiles:
     - name: car
       vehicle: car
@@ -40,10 +40,12 @@ graphhopper:
       custom_model: {
       distance_influence: 70,
       "priority": [
-          { "if": "car_access_conditional == NO", "multiply_by": "0" }
+          { "if": "car_access_conditional == NO", "multiply_by": "0" },
+          { "else_if": "traffic_conditional == NO", "multiply_by": "0.4" }
       ],
           "speed": [
-              { "if": "car_access_conditional == NO", "multiply_by": "0" }
+              { "if": "car_access_conditional == NO", "multiply_by": "0" },
+              { "if": "traffic_conditional == NO", "multiply_by": "car_average_speed * 0.4" }
           ]
   }
 
