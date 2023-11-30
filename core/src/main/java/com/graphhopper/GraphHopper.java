@@ -836,12 +836,12 @@ public class GraphHopper {
      * disc which is usually a lot faster.
      */
     public GraphHopper importOrLoad() {
-        if (!load()) {
+//        if (!load()) {
             printInfo();
             process(false);
-        } else {
-            printInfo();
-        }
+//        } else {
+//            printInfo();
+//        }
         return this;
     }
 
