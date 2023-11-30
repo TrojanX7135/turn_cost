@@ -39,7 +39,7 @@ import com.graphhopper.reader.ReaderWay;
  */
 public class OSMConditionalRestrictionsTrafficParser implements TagParser{
     private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsTrafficParser.class);
-    private final String conditionals;
+    private final Collection<String> conditionals;
     private final SetterTraffic restrictionSetter;
     private DateTimeRangeParser parser;
     private final boolean enabledLogs = false;
@@ -49,7 +49,7 @@ public class OSMConditionalRestrictionsTrafficParser implements TagParser{
         void setBoolean(int edgeId, EdgeIntAccess edgeIntAccess, boolean b);
     }
 
-    public OSMConditionalRestrictionsTrafficParser(String conditionals, SetterTraffic restrictionSetter, String dateRangeParserDate) {
+    public OSMConditionalRestrictionsTrafficParser(Collection<String> conditionals, SetterTraffic restrictionSetter, String dateRangeParserDate) {
         this.conditionals = conditionals;
         this.restrictionSetter = restrictionSetter;
         LocalDateTime current = LocalDateTime.now();

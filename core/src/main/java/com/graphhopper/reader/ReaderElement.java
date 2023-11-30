@@ -150,9 +150,18 @@ public abstract class ReaderElement {
         return false;
     }
 
-    /**
-     * Check a number of tags in the given order if their value is equal to the specified value.
-     */
+    public boolean hasTag(Collection<String> listConditionalKey) {
+        for (String key : listConditionalKey) {
+            if (properties.containsKey(key))
+                return true;
+        }
+        return false;
+    }
+
+
+        /**
+         * Check a number of tags in the given order if their value is equal to the specified value.
+         */
     public boolean hasTag(List<String> keyList, Object value) {
         for (String key : keyList) {
             if (value.equals(getTag(key, null)))

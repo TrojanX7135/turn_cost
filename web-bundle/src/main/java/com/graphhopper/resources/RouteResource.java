@@ -210,8 +210,8 @@ public class RouteResource {
             List<Integer> listEdges = this.graphHopper.getReader().getEgdeFromWay(readerWay.getId());
             IntsRef relationFlags = this.graphHopper.getReader().getRelFlagsMap(readerWay.getId());
             for (Integer integer : listEdges) {
-                //this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
-                this.graphHopper.getOSMParsers().handleSpecialConditionalWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
+                this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
+                //this.graphHopper.getOSMParsers().handleSpecialConditionalWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), readerWay, relationFlags);
             }
         }
 

@@ -28,15 +28,16 @@ import java.util.HashSet;
  * Stores temporary so-called conditional restrictions from access:conditional and other conditional
  * tags affecting cars.
  */
-public enum TrafficConditional {
+public enum TruckTrafficConditional {
 
     MISSING, YES, NO;
 
-    public static final String CONDITIONALS = "traffic:conditional";
-    public static final String KEY = "traffic_conditional";
+    public static final Collection<String> CONDITIONALS = new HashSet<>(Arrays.asList("traffic:conditional",
+            "truck_traffic:conditional"));
+    public static final String KEY = "truck_traffic_conditional";
 
-    public static EnumEncodedValue<TrafficConditional> create() {
-        return new EnumEncodedValue<>(KEY, TrafficConditional.class);
+    public static EnumEncodedValue<TruckTrafficConditional> create() {
+        return new EnumEncodedValue<>(KEY, TruckTrafficConditional.class);
     }
 
     @Override
