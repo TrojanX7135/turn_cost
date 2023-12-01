@@ -200,6 +200,15 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         return df;
     }
 
+    public String [] getTimeRangeCount(String timeRangeString)
+    {
+        String [] DateTimeArr = timeRangeString.split("_");
+        String[] count = DateTimeArr[1].split(",");
+        System.out.print("So khoang thoi gian: ");
+        System.out.println(count.length);
+        return count;
+    }
+
     private static SimpleDateFormat createTimeFormatter(String format) {
         return new SimpleDateFormat(format);
     }

@@ -127,7 +127,19 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 //            String dateRangeParserTime = current.format(formatter_time);
 //            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
 
-            ConditionalValueParser.ConditionState res = parser.checkCondition(conditionalValue);
+            String [] a = parser.getTimeRangeCount(conditionalValue);
+            ConditionalValueParser.ConditionState res = parser.checkCondition(a[0]);
+            for (int i = 1; i < a.length;i++) {
+                ConditionalValueParser.ConditionState resTemp = parser.checkCondition(a[i]);
+                if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.TRUE)
+                    res = ConditionalValueParser.ConditionState.TRUE;
+                else if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                    res = ConditionalValueParser.ConditionState.TRUE;
+                else if(res == ConditionalValueParser.ConditionState.FALSE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                    res = ConditionalValueParser.ConditionState.FALSE;
+                else res = ConditionalValueParser.ConditionState.TRUE;
+                //res = parser.checkCondition(a[i]);
+            }
             if (res.isValid())
                 return res.isCheckPassed();
             if (enabledLogs)

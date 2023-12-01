@@ -113,8 +113,22 @@ public class OSMConditionalRestrictionsTrafficParser implements TagParser{
             String dateRangeParserDate = current.format(formatter_date);
             String dateRangeParserTime = current.format(formatter_time);
             this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate, dateRangeParserTime);
+            String [] DateTimeArr = conditionalValue.split("_");
 
-            ConditionalValueParser.ConditionState res = parser.checkCondition(conditionalValue);
+            String [] a = parser.getTimeRangeCount(conditionalValue);
+            ConditionalValueParser.ConditionState res = parser.checkCondition(DateTimeArr[0] + "_" + a[0]);
+            for (int i = 1; i < a.length;i++) {
+                ConditionalValueParser.ConditionState resTemp = parser.checkCondition(DateTimeArr[0] + "_" +a[i]);
+                if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.TRUE)
+                    res = ConditionalValueParser.ConditionState.TRUE;
+                else if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                    res = ConditionalValueParser.ConditionState.TRUE;
+                else if(res == ConditionalValueParser.ConditionState.FALSE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                    res = ConditionalValueParser.ConditionState.FALSE;
+                else res = ConditionalValueParser.ConditionState.TRUE;
+                //res = parser.checkCondition(a[i]);
+            }
+            //ConditionalValueParser.ConditionState res = parser.checkCondition(conditionalValue);
             if (res.isValid())
                 return res.isCheckPassed();
             if (enabledLogs)

@@ -33,7 +33,7 @@ public enum TruckAccessConditional {
     MISSING, YES, NO;
 
     public static final Collection<String> CONDITIONALS = new HashSet<>(Arrays.asList("access:conditional",
-            "vehicle:conditional", "truck:conditional"));
+            "vehicle:conditional", "truck:conditional", "hgv:conditional"));
     public static final String KEY = "truck_access_conditional";
 
     public static EnumEncodedValue<TruckAccessConditional> create() {

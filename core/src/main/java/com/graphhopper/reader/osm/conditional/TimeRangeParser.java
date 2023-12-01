@@ -96,6 +96,14 @@ public class TimeRangeParser implements ConditionalValueParser {
         }
     }
 
+    public String [] getTimeRangeCount(String timeRangeString)
+    {
+        String[] count = timeRangeString.split(",");
+        System.out.print("So khoang thoi gian: ");
+        System.out.println(count.length);
+        return count;
+    }
+
     @Override
     public ConditionState checkCondition(String timeRangeString) throws ParseException {
         TimeRange dr = getRange(timeRangeString);
