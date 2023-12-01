@@ -157,4 +157,12 @@ public class DateRangeParser implements ConditionalValueParser {
         df.setTimeZone(Helper.UTC);
         return df;
     }
+
+    public String [] getDateRangeCount(String dateRangeString)
+    {
+        String[] count = dateRangeString.split(",");
+        System.out.print("So khoang ngay: ");
+        System.out.println(count.length);
+        return count;
+    }
 }

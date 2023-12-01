@@ -21,6 +21,8 @@ package com.graphhopper.routing.util.parsers;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.reader.osm.conditional.ConditionalValueParser;
 import com.graphhopper.reader.osm.conditional.TimeRangeParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
+import com.graphhopper.reader.osm.conditional.DateTimeRangeParser;
 import com.graphhopper.routing.ev.EdgeIntAccess;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Helper;
@@ -43,7 +45,9 @@ public class OSMConditionalRestrictionsParser implements TagParser {
     private static final Logger logger = LoggerFactory.getLogger(OSMConditionalRestrictionsParser.class);
     private final Collection<String> conditionals;
     private final Setter restrictionSetter;
-    private TimeRangeParser parser;
+    private TimeRangeParser parser_time;
+    private DateRangeParser parser_date;
+    private DateTimeRangeParser parser;
     private final boolean enabledLogs = false;
 
     @FunctionalInterface
@@ -55,19 +59,13 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         this.conditionals = conditionals;
         this.restrictionSetter = restrictionSetter;
         LocalDateTime current = LocalDateTime.now();
-        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         dateRangeParserDate = current.format(formatter_date);
-        this.parser = TimeRangeParser.createInstance(dateRangeParserDate);
-
-//        LocalDateTime current = LocalDateTime.now();
-//        DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//        DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
-//        dateRangeParserDate = current.format(formatter_date);
-//        String dateRangeParserTime = current.format(formatter_time);
-//        this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
-
-        System.out.println(dateRangeParserDate);
-        System.out.println(parser.toString());
+        String dateRangeParserTime = current.format(formatter_time);
+        this.parser_time = TimeRangeParser.createInstance(dateRangeParserTime);
+        this.parser_date = DateRangeParser.createInstance(dateRangeParserDate);
+        this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
     }
 
     @Override
@@ -88,17 +86,23 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             if (!conditionals.contains(entry.getKey())) continue;
 
             String value = (String) entry.getValue();
-            String[] strs = value.split("@");
-            if (strs.length == 2 && isInRange(strs[1].trim())) {
-                if (strs[0].trim().equals("no")) return false;
-                if (strs[0].trim().equals("yes")) return true;
-            }
-            // Thêm vào
-            else if(strs.length == 2 && !isInRange(strs[1].trim()))
+            String [] strs_1 = value.split(";");
+            if(strs_1.length > 1 ) return null;
+            else
             {
-                if (strs[0].trim().equals("no")) return true;
-                if (strs[0].trim().equals("yes")) return false;
+                String[] strs = value.split("@");
+                if (strs.length == 2 && isInRange(strs[1].trim())) {
+                    if (strs[0].trim().equals("no")) return false;
+                    if (strs[0].trim().equals("yes")) return true;
+                }
+                // Thêm vào
+                else if(strs.length == 2 && !isInRange(strs[1].trim()))
+                {
+                    if (strs[0].trim().equals("no")) return true;
+                    if (strs[0].trim().equals("yes")) return false;
+                }
             }
+
         }
         return null;
     }
@@ -129,31 +133,34 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             processedconditionalValue = conditionalValue;
         }
 
+        String [] Data = processedconditionalValue.split(" ");
+        String timeData = Data[1];
+        String dateData = Data[0];
+
         try {
             LocalDateTime current = LocalDateTime.now();
+            DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
             String dateRangeParserTime = current.format(formatter_time);
-            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
+            String dateRangeParserDate = current.format(formatter_date);
+            this.parser_time = TimeRangeParser.createInstance(dateRangeParserTime);
+            this.parser_date = DateRangeParser.createInstance(dateRangeParserDate);
+            this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
 
-//            LocalDateTime current = LocalDateTime.now();
-//            DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//            DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
-//            String dateRangeParserDate = current.format(formatter_date);
-//            String dateRangeParserTime = current.format(formatter_time);
-//            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
-
-            String [] a = parser.getTimeRangeCount(processedconditionalValue);
-            ConditionalValueParser.ConditionState res = parser.checkCondition(a[0]);
-            for (int i = 1; i < a.length;i++) {
-                ConditionalValueParser.ConditionState resTemp = parser.checkCondition(a[i]);
-                if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.TRUE)
-                    res = ConditionalValueParser.ConditionState.TRUE;
-                else if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.FALSE)
-                    res = ConditionalValueParser.ConditionState.TRUE;
-                else if(res == ConditionalValueParser.ConditionState.FALSE && resTemp == ConditionalValueParser.ConditionState.FALSE)
-                    res = ConditionalValueParser.ConditionState.FALSE;
-                else res = ConditionalValueParser.ConditionState.TRUE;
-                //res = parser.checkCondition(a[i]);
+            String [] timeRangeCount = parser_time.getTimeRangeCount(timeData);
+            String [] dateRangeCount = parser_date.getDateRangeCount(dateData);
+            ConditionalValueParser.ConditionState res = parser.checkCondition(dateRangeCount[0] + " " + timeRangeCount[0]);
+            for (String s : dateRangeCount) {
+                for (int j = 1; j < timeRangeCount.length; j++) {
+                    ConditionalValueParser.ConditionState resTemp = parser.checkCondition(s + " " + timeRangeCount[j]);
+                    if (res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.TRUE)
+                        res = ConditionalValueParser.ConditionState.TRUE;
+                    else if (res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                        res = ConditionalValueParser.ConditionState.TRUE;
+                    else if (res == ConditionalValueParser.ConditionState.FALSE && resTemp == ConditionalValueParser.ConditionState.FALSE)
+                        res = ConditionalValueParser.ConditionState.FALSE;
+                    else res = ConditionalValueParser.ConditionState.TRUE;
+                }
             }
             if (res.isValid())
                 return res.isCheckPassed();
@@ -165,9 +172,4 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
         return false;
     }
-
-//    public ReaderWay getConditioanlWay(int index)
-//    {
-//        return readerConditionalWays_list.get(index);
-//    }
 }

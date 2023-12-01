@@ -137,7 +137,7 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         ParsedTime to_time;
 
 
-        String[] dateTimeArr = dateRangeString.split("_");
+        String[] dateTimeArr = dateRangeString.split(" ");
         if (dateTimeArr.length > 2 || dateTimeArr.length < 1)
             return null;
         // throw new IllegalArgumentException("Only Strings containing two Date separated by a '-' or a single Date are allowed");

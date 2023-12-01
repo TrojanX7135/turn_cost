@@ -29,7 +29,7 @@ graphhopper:
   # profiles (see below). Or at least limit the number of `routing.max_visited_nodes`.
 #  graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true
   graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true, bike|turn_costs=true
-  graph.encoded_values: toll,hgv,surface,max_width,max_height,curvature,track_type,car_traffic_conditional, truck_traffic_conditional, truck_access_conditional, car_access_conditional, motorcycle_traffic_conditional, motorcycle_access_conditional, traffic_stable
+  graph.encoded_values: toll,hgv,surface,max_width,max_height, max_weight,curvature,track_type,car_traffic_conditional, truck_traffic_conditional, truck_access_conditional, car_access_conditional, motorcycle_traffic_conditional, motorcycle_access_conditional, traffic_stable
   profiles:
     - name: car
       vehicle: car
@@ -55,6 +55,12 @@ graphhopper:
       weighting: custom
       turn_costs: true
       custom_model_files: [ truck.json ]
+
+    - name: small_truck
+      vehicle: roads
+      weighting: custom
+      turn_costs: true
+      custom_model_files: [ small_truck.json ]
 #
     -   name: motorcycle
         vehicle: roads
