@@ -88,8 +88,8 @@ public class WaySegmentParser {
         for(ReaderWay way : readerWays_list)
         {
             Collection<String> listConditionalKey = new HashSet<>(Arrays.asList("traffic:conditional",
-                    "car_traffic:conditional", "truck_traffic:conditional", "access:conditional",
-                    "vehicle:conditional", "motor_vehicle:conditional", "motorcar:conditional","truck:conditional", "hgv:conditional"));
+                    "car_traffic:conditional", "truck_traffic:conditional","motorcycle_traffic:conditional", "access:conditional",
+                    "vehicle:conditional", "motor_vehicle:conditional", "motorcar:conditional","motorcycle:conditional","truck:conditional", "hgv:conditional"));
             if(way.hasTag(listConditionalKey)) ConditionalWays_list.add(way);
 //            String a = way.getTag("access:conditional");
 //            if(a == null) a = "";
