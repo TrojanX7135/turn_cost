@@ -30,13 +30,22 @@ import java.util.Calendar;
 public class TimeRange {
     private final Calendar from;
     private final Calendar to;
+    boolean reverse = false;
 
     public TimeRange(ParsedTime from, ParsedTime to) {
         this.from = from.getMin();
         this.to = to.getMax();
+
+        if (this.from.getTimeInMillis() > this.to.getTimeInMillis()) {
+            reverse = true;
+        }
     }
 
     public boolean isInRange(Calendar date) {
-        return date.getTime().compareTo(this.from.getTime()) >= 0 && date.getTime().compareTo(this.to.getTime()) <= 0;
+        if(reverse)
+        {
+            return this.from.getTimeInMillis() < date.getTimeInMillis() || date.getTimeInMillis() < this.to.getTimeInMillis();
+        }
+        else return this.from.getTimeInMillis() < date.getTimeInMillis() && date.getTimeInMillis() < this.to.getTimeInMillis();
     }
 }
