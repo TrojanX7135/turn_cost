@@ -141,6 +141,8 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             this.parser_time = TimeRangeParser.createInstance(dateRangeParserTime);
             this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
 
+            if(processedconditionalValue.split(" ").length > 2) return  false;
+
             String [] timeRangeCount = parser.getTimeRangeCount(processedconditionalValue);
             String [] dateRangeCount = parser.getDateRangeCount(processedconditionalValue);
             ConditionalValueParser.ConditionState resGlobal = ConditionalValueParser.ConditionState.INVALID;
