@@ -76,18 +76,13 @@ public class TimeRangeParser implements ConditionalValueParser {
             throw new IllegalArgumentException("Passing empty Strings is not allowed");
 
         String[] timeArr = timeRangeString.split("-");
-        if (timeArr.length > 2 || timeArr.length < 1)
+        if (timeArr.length != 2)
             return null;
         // throw new IllegalArgumentException("Only Strings containing two Date separated by a '-' or a single Date are allowed");
 
         ParsedTime from = parseTimeString(timeArr[0]);
         ParsedTime to;
-        if (timeArr.length == 2)
-            to = parseTimeString(timeArr[1]);
-        else
-            // faster and safe?
-            // to = new ParsedCalendar(from.parseType, (Calendar) from.parsedCalendar.clone());
-            to = parseTimeString(timeArr[0]);
+        to = parseTimeString(timeArr[1]);
 
         try {
             return new TimeRange(from, to);

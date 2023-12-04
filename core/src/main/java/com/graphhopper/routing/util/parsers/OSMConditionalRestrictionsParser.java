@@ -114,6 +114,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
 
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
+        String processedconditionalValue = conditionalValue.replaceAll("(AND|OR)\\s[\\w\\d]+", "");
         try {
             LocalDateTime current = LocalDateTime.now();
             DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
@@ -127,7 +128,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 //            String dateRangeParserTime = current.format(formatter_time);
 //            this.parser = TimeRangeParser.createInstance(dateRangeParserTime);
 
-            String [] a = parser.getTimeRangeCount(conditionalValue);
+            String [] a = parser.getTimeRangeCount(processedconditionalValue);
             ConditionalValueParser.ConditionState res = parser.checkCondition(a[0]);
             for (int i = 1; i < a.length;i++) {
                 ConditionalValueParser.ConditionState resTemp = parser.checkCondition(a[i]);

@@ -50,11 +50,11 @@ graphhopper:
   }
 
 
-#    - name: truck
-#      vehicle: roads
-#      weighting: custom
-#      turn_costs: true
-#      custom_model_files: [ truck.json ]
+    - name: truck
+      vehicle: roads
+      weighting: custom
+      turn_costs: true
+      custom_model_files: [ truck.json ]
 #
     -   name: motorcycle
         vehicle: roads
