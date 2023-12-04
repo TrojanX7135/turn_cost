@@ -116,9 +116,9 @@ public class OSMConditionalRestrictionsTrafficParser implements TagParser{
             String [] DateTimeArr = conditionalValue.split(" ");
 
             String [] a = parser.getTimeRangeCount(conditionalValue);
-            ConditionalValueParser.ConditionState res = parser.checkCondition(DateTimeArr[0] + "_" + a[0]);
+            ConditionalValueParser.ConditionState res = parser.checkCondition(DateTimeArr[0] + " " + a[0]);
             for (int i = 1; i < a.length;i++) {
-                ConditionalValueParser.ConditionState resTemp = parser.checkCondition(DateTimeArr[0] + "_" +a[i]);
+                ConditionalValueParser.ConditionState resTemp = parser.checkCondition(DateTimeArr[0] + " " +a[i]);
                 if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.TRUE)
                     res = ConditionalValueParser.ConditionState.TRUE;
                 else if(res == ConditionalValueParser.ConditionState.TRUE && resTemp == ConditionalValueParser.ConditionState.FALSE)

@@ -202,10 +202,35 @@ public class DateTimeRangeParser implements ConditionalValueParser {
 
     public String [] getTimeRangeCount(String timeRangeString)
     {
-        String [] DateTimeArr = timeRangeString.split("_");
-        String[] count = DateTimeArr[1].split(",");
-//        System.out.print("So khoang thoi gian: ");
-//        System.out.println(count.length);
+        String [] DateTimeArr = timeRangeString.split(" ");
+        String[] count;
+        if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
+            count = new String[0];
+        else if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
+            count = DateTimeArr;
+        else
+        {
+            count = DateTimeArr[1].split(",");
+        }
+        System.out.print("So khoang thoi gian: ");
+        System.out.println(count.length);
+        return count;
+    }
+
+    public String [] getDateRangeCount(String timeRangeString)
+    {
+        String [] DateTimeArr = timeRangeString.split(" ");
+        String[] count;
+        if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
+            count = new String[0];
+        else if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
+            count = DateTimeArr;
+        else
+        {
+            count = DateTimeArr[0].split(",");
+        }
+        System.out.print("So khoang ngay: ");
+        System.out.println(count.length);
         return count;
     }
 

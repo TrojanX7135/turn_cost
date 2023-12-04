@@ -14,6 +14,7 @@ public class DateTimeRange {
     boolean yearless = false;
     boolean dayOnly = false;
     boolean reverse = false;
+    boolean reverse_time = false;
 
     public DateTimeRange(ParsedCalendar from_date, ParsedCalendar to_date, ParsedTime from_time, ParsedTime to_time)
     {
@@ -45,11 +46,19 @@ public class DateTimeRange {
         this.to_date = to_date.getMax();
         this.from_time= from_time.getMin();
         this.to_time = to_time.getMax();
+        if (this.from_time.getTimeInMillis() > this.to_time.getTimeInMillis()) {
+            reverse_time = true;
+        }
     }
 
     public boolean isInRange(Calendar date, Calendar time) {
         // Thời gian
-        boolean a = time.getTime().compareTo(this.from_time.getTime()) >= 0 && time.getTime().compareTo(this.to_time.getTime()) <= 0;
+        boolean a;
+        if(reverse_time)
+        {
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        }
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         // có năm và k có thứ
         if (!yearless && !dayOnly)
@@ -75,7 +84,12 @@ public class DateTimeRange {
 
     private boolean isInRangeYearless(Calendar date, Calendar time) {
         // Thời gian
-        boolean a = time.getTime().compareTo(this.from_time.getTime()) >= 0 && time.getTime().compareTo(this.to_time.getTime()) <= 0;
+        boolean a;
+        if(reverse_time)
+        {
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        }
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         if (from_date.get(Calendar.MONTH) < date.get(Calendar.MONTH) && date.get(Calendar.MONTH) < to_date.get(Calendar.MONTH))
             return a;
@@ -102,7 +116,12 @@ public class DateTimeRange {
 
     private boolean isInRangeYearlessReverse(Calendar date, Calendar time) {
         // Thời gian
-        boolean a = time.getTime().compareTo(this.from_time.getTime()) >= 0 && time.getTime().compareTo(this.to_time.getTime()) <= 0;
+        boolean a;
+        if(reverse_time)
+        {
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        }
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         int currMonth = date.get(Calendar.MONTH);
         if (from_date.get(Calendar.MONTH) < currMonth || currMonth < to_date.get(Calendar.MONTH))
