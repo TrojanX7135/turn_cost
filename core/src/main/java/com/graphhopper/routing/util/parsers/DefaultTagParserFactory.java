@@ -21,7 +21,7 @@ import com.graphhopper.routing.ev.*;
 import com.graphhopper.routing.util.FerrySpeedCalculator;
 import com.graphhopper.routing.util.TransportationMode;
 import com.graphhopper.routing.util.parsers.OSMConditionalRestrictionsParser.Setter;
-import com.graphhopper.routing.util.parsers.OSMConditionalRestrictionsTrafficParser.SetterTraffic;
+//import com.graphhopper.routing.util.parsers.OSMConditionalRestrictionsTrafficParser.SetterTraffic;
 import com.graphhopper.util.PMap;
 
 public class DefaultTagParserFactory implements TagParserFactory {
@@ -92,19 +92,33 @@ public class DefaultTagParserFactory implements TagParserFactory {
         else if (name.equals(Crossing.KEY))
             return new OSMCrossingParser(lookup.getEnumEncodedValue(Crossing.KEY, Crossing.class));
         // Traffic
+//        else if (name.equals(CarTrafficConditional.KEY)) {
+//            EnumEncodedValue<CarTrafficConditional> enc = lookup.getEnumEncodedValue(CarTrafficConditional.KEY, CarTrafficConditional.class);
+//            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? CarTrafficConditional.YES : CarTrafficConditional.NO);
+//            return new OSMConditionalRestrictionsTrafficParser(CarTrafficConditional.CONDITIONALS, fct, "");
+//        }else if (name.equals(TruckTrafficConditional.KEY)) {
+//            EnumEncodedValue<TruckTrafficConditional> enc = lookup.getEnumEncodedValue(TruckTrafficConditional.KEY, TruckTrafficConditional.class);
+//            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? TruckTrafficConditional.YES : TruckTrafficConditional.NO);
+//            return new OSMConditionalRestrictionsTrafficParser(TruckTrafficConditional.CONDITIONALS, fct, "");
+//        }else if (name.equals(MotorcycleTrafficConditional.KEY)) {
+//            EnumEncodedValue<MotorcycleTrafficConditional> enc = lookup.getEnumEncodedValue(MotorcycleTrafficConditional.KEY, MotorcycleTrafficConditional.class);
+//            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? MotorcycleTrafficConditional.YES : MotorcycleTrafficConditional.NO);
+//            return new OSMConditionalRestrictionsTrafficParser(MotorcycleTrafficConditional.CONDITIONALS, fct, "");
+
         else if (name.equals(CarTrafficConditional.KEY)) {
             EnumEncodedValue<CarTrafficConditional> enc = lookup.getEnumEncodedValue(CarTrafficConditional.KEY, CarTrafficConditional.class);
-            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? CarTrafficConditional.YES : CarTrafficConditional.NO);
-            return new OSMConditionalRestrictionsTrafficParser(CarTrafficConditional.CONDITIONALS, fct, "");
+            Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? CarTrafficConditional.YES : CarTrafficConditional.NO);
+            return new OSMConditionalRestrictionsParser(CarTrafficConditional.CONDITIONALS, fct, "");
         }else if (name.equals(TruckTrafficConditional.KEY)) {
             EnumEncodedValue<TruckTrafficConditional> enc = lookup.getEnumEncodedValue(TruckTrafficConditional.KEY, TruckTrafficConditional.class);
-            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? TruckTrafficConditional.YES : TruckTrafficConditional.NO);
-            return new OSMConditionalRestrictionsTrafficParser(TruckTrafficConditional.CONDITIONALS, fct, "");
+            Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? TruckTrafficConditional.YES : TruckTrafficConditional.NO);
+            return new OSMConditionalRestrictionsParser(TruckTrafficConditional.CONDITIONALS, fct, "");
         }else if (name.equals(MotorcycleTrafficConditional.KEY)) {
             EnumEncodedValue<MotorcycleTrafficConditional> enc = lookup.getEnumEncodedValue(MotorcycleTrafficConditional.KEY, MotorcycleTrafficConditional.class);
-            SetterTraffic fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? MotorcycleTrafficConditional.YES : MotorcycleTrafficConditional.NO);
-            return new OSMConditionalRestrictionsTrafficParser(MotorcycleTrafficConditional.CONDITIONALS, fct, "");
-            // Access
+            Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? MotorcycleTrafficConditional.YES : MotorcycleTrafficConditional.NO);
+            return new OSMConditionalRestrictionsParser(MotorcycleTrafficConditional.CONDITIONALS, fct, "");
+
+        // Access
         }else if (name.equals(CarAccessConditional.KEY)) {
             EnumEncodedValue<CarAccessConditional> enc = lookup.getEnumEncodedValue(CarAccessConditional.KEY, CarAccessConditional.class);
             Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b ? CarAccessConditional.YES : CarAccessConditional.NO);

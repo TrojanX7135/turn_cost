@@ -56,9 +56,9 @@ public class DateTimeRange {
         boolean a;
         if(reverse_time)
         {
-            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || time.getTimeInMillis() < this.to_time.getTimeInMillis();
         }
-        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && time.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         // có năm và k có thứ
         if (!yearless && !dayOnly)
@@ -87,9 +87,9 @@ public class DateTimeRange {
         boolean a;
         if(reverse_time)
         {
-            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || time.getTimeInMillis() < this.to_time.getTimeInMillis();
         }
-        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && time.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         if (from_date.get(Calendar.MONTH) < date.get(Calendar.MONTH) && date.get(Calendar.MONTH) < to_date.get(Calendar.MONTH))
             return a;
@@ -119,9 +119,9 @@ public class DateTimeRange {
         boolean a;
         if(reverse_time)
         {
-            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || date.getTimeInMillis() < this.to_time.getTimeInMillis();
+            a = this.from_time.getTimeInMillis() < time.getTimeInMillis() || time.getTimeInMillis() < this.to_time.getTimeInMillis();
         }
-        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && date.getTimeInMillis() < this.to_time.getTimeInMillis();
+        else a = this.from_time.getTimeInMillis() < time.getTimeInMillis() && time.getTimeInMillis() < this.to_time.getTimeInMillis();
 
         int currMonth = date.get(Calendar.MONTH);
         if (from_date.get(Calendar.MONTH) < currMonth || currMonth < to_date.get(Calendar.MONTH))
