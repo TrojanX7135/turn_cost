@@ -91,11 +91,19 @@ public class WaySegmentParser {
                     "car_traffic:conditional", "truck_traffic:conditional","motorcycle_traffic:conditional", "access:conditional",
                     "vehicle:conditional", "motor_vehicle:conditional", "motorcar:conditional","motorcycle:conditional","truck:conditional", "hgv:conditional"));
             if(way.hasTag(listConditionalKey)) ConditionalWays_list.add(way);
-//            String a = way.getTag("access:conditional");
-//            if(a == null) a = "";
-//            if(!a.isEmpty()) ConditionalWays_list.add(way);
         }
         return  ConditionalWays_list;
+    }
+
+    public ReaderWay getWayFromOSMId(long OSMId)
+    {
+        for(ReaderWay way: readerWays_list)
+        {
+            if(way.getId() == OSMId)
+                return way;
+        }
+        System.out.println("Khong ton tai con duong do");
+        return null;
     }
 
     private WaySegmentParser(OSMNodeData nodeData) {
