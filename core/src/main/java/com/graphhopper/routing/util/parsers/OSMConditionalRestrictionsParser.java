@@ -114,7 +114,21 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
 
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
-        String processedconditionalValue = conditionalValue.replaceAll("(AND|OR)\\s[\\w\\d]+", "");
+        String processedconditionalValue = "";
+        int skipValueANDIndex = conditionalValue.indexOf("AND");
+        int skipValueORIndex = conditionalValue.indexOf("OR");
+        if(skipValueANDIndex > 1 && skipValueORIndex == -1)
+        {
+            processedconditionalValue = conditionalValue.substring(0,skipValueANDIndex).trim();
+        }
+        else if(skipValueANDIndex == -1 && skipValueORIndex > 1){
+            processedconditionalValue = conditionalValue.substring(0,skipValueORIndex).trim();
+        }
+        else if(skipValueANDIndex == -1 && skipValueORIndex == -1)
+        {
+            processedconditionalValue = conditionalValue;
+        }
+
         try {
             LocalDateTime current = LocalDateTime.now();
             DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
