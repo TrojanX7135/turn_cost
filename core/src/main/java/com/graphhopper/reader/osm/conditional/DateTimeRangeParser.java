@@ -204,8 +204,8 @@ public class DateTimeRangeParser implements ConditionalValueParser {
     {
         String [] DateTimeArr = timeRangeString.split("_");
         String[] count = DateTimeArr[1].split(",");
-        System.out.print("So khoang thoi gian: ");
-        System.out.println(count.length);
+//        System.out.print("So khoang thoi gian: ");
+//        System.out.println(count.length);
         return count;
     }
 
