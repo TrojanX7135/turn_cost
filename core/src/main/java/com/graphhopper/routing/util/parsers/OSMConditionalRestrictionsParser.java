@@ -109,11 +109,11 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         if (value.isEmpty())
             return false;
 
-        if (value.contains(";")) {
-            if (enabledLogs)
-                logger.warn("We do not support multiple conditions yet: " + value);
-            return false;
-        }
+//        if (value.contains(";")) {
+//            if (enabledLogs)
+//                logger.warn("We do not support multiple conditions yet: " + value);
+//            return false;
+//        }
 
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
         String processedconditionalValue = "";

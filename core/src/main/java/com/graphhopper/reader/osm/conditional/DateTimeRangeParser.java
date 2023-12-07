@@ -207,10 +207,10 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
             count = new String[0];
         else if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
-            count = DateTimeArr[0].split(",");
+            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : DateTimeArr[0].split(",");
         else
         {
-            count = DateTimeArr[1].split(",");
+            count = (DateTimeArr[1].contains(";")) ? DateTimeArr[1].split(";") : DateTimeArr[1].split(",");
         }
         System.out.print("So khoang thoi gian: ");
         System.out.println(count.length);
@@ -224,10 +224,10 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
             count = new String[0];
         else if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
-            count = DateTimeArr[0].split(",");
+            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : DateTimeArr[0].split(",");
         else
         {
-            count = DateTimeArr[0].split(",");
+            count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : DateTimeArr[0].split(",");
         }
         System.out.print("So khoang ngay: ");
         System.out.println(count.length);
