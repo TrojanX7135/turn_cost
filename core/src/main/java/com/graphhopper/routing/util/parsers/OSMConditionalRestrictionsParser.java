@@ -117,8 +117,8 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 
         String conditionalValue = value.replace('(', ' ').replace(')', ' ').trim();
         String processedconditionalValue = "";
-        int skipValueANDIndex = conditionalValue.indexOf("AND");
-        int skipValueORIndex = conditionalValue.indexOf("OR");
+        int skipValueANDIndex = conditionalValue.indexOf("AND weight");
+        int skipValueORIndex = conditionalValue.indexOf("OR weight");
         if(skipValueANDIndex > 1 && skipValueORIndex == -1)
         {
             processedconditionalValue = conditionalValue.substring(0,skipValueANDIndex).trim();
@@ -141,10 +141,13 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             this.parser_time = TimeRangeParser.createInstance(dateRangeParserTime);
             this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
 
-            if(processedconditionalValue.split(" ").length > 2) return  false;
+            if(!processedconditionalValue.contains("AND") && !processedconditionalValue.contains("and"))
+                if(processedconditionalValue.split(" ").length > 2) return  false;
 
             String [] timeRangeCount = parser.getTimeRangeCount(processedconditionalValue);
             String [] dateRangeCount = parser.getDateRangeCount(processedconditionalValue);
+
+
             ConditionalValueParser.ConditionState resGlobal = ConditionalValueParser.ConditionState.INVALID;
             if(timeRangeCount.length > 0 && dateRangeCount.length > 0)
             {
