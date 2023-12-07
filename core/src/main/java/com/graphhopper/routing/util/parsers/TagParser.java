@@ -28,6 +28,4 @@ import com.graphhopper.storage.IntsRef;
 public interface TagParser {
 
     void handleWayTags(int edgeId, EdgeIntAccess edgeIntAccess, ReaderWay way, IntsRef relationFlags);
-
-    default void setparset(String dateRangeParserDate){}
 }

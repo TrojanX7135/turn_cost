@@ -674,7 +674,7 @@ public class OSMReader {
 
     private void releaseEverythingExceptRestrictionData() {
         eleProvider.release();
-        //osmWayIdToRelationFlagsMap restrictedWaysToEdgesMap;
+//        osmWayIdToRelationFlagsMap = null;
     }
 
     private void releaseRestrictionData() {

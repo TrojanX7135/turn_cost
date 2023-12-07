@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class GraphHopperManaged implements Managed {
+
     private final static Logger logger = LoggerFactory.getLogger(GraphHopperManaged.class);
     private final GraphHopper graphHopper;
 
@@ -47,8 +48,6 @@ public class GraphHopperManaged implements Managed {
                 graphHopper.getEncodingManager().getIntsForFlags(),
                 graphHopper.getBaseGraph().toDetailsString());
     }
-
-
 
     public GraphHopper getGraphHopper() {
         return graphHopper;

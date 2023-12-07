@@ -23,7 +23,10 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 
 import static com.graphhopper.util.Helper.createFormatter;
 
@@ -70,7 +73,6 @@ public class DateRangeParser implements ConditionalValueParser {
             parsedCalendar = new ParsedCalendar(ParsedCalendar.ParseType.YEAR_MONTH_DAY, calendar);
         } catch (ParseException e1) {
             try {
-                Date a = MONTH_DAY_DF.parse(dateString);
                 calendar.setTime(MONTH_DAY_DF.parse(dateString));
                 parsedCalendar = new ParsedCalendar(ParsedCalendar.ParseType.MONTH_DAY, calendar);
             } catch (ParseException e2) {

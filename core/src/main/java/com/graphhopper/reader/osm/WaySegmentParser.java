@@ -114,7 +114,6 @@ public class WaySegmentParser {
      * @param osmFile the OSM file to parse, supported formats include .osm.xml, .osm.gz and .xml.pbf
      */
     public void readOSM(File osmFile) {
-        long a = nodeData.getNodeCount();
         if (nodeData.getNodeCount() > 0)
             throw new IllegalStateException("You can only run way segment parser once");
 

@@ -65,9 +65,6 @@ public class WayToEdgesMap {
         this.edges.add(edge);
     }
 
-    // Thêm vào
-
-
     public Iterator<IntCursor> getEdges(long way) {
         int idx = offsetIndexByWay.indexOf(way);
         if (idx < 0)
