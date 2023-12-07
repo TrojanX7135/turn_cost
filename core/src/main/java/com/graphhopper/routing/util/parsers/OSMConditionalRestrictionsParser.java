@@ -84,8 +84,8 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             if (!conditionals.contains(entry.getKey())) continue;
 
             String value = (String) entry.getValue();
-            String [] strs_1 = value.split(";");
-            if(strs_1.length > 1 ) return null;
+            String [] strs_1 = value.split("@");
+            if(strs_1.length > 2 ) return null;
             else
             {
                 String[] strs = value.split("@");

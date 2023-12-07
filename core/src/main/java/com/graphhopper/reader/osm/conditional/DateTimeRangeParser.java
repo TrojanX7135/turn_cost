@@ -207,7 +207,7 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
             count = new String[0];
         else if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
-            count = DateTimeArr;
+            count = DateTimeArr[0].split(",");
         else
         {
             count = DateTimeArr[1].split(",");
@@ -224,7 +224,7 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         if(DateTimeArr.length < 2 && timeRangeString.contains(":"))
             count = new String[0];
         else if(DateTimeArr.length < 2 && !timeRangeString.contains(":"))
-            count = DateTimeArr;
+            count = DateTimeArr[0].split(",");
         else
         {
             count = DateTimeArr[0].split(",");
