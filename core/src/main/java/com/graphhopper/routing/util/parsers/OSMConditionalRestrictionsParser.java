@@ -50,7 +50,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 
     @FunctionalInterface
     public interface Setter {
-        void setBoolean(int edgeId, EdgeIntAccess edgeIntAccess, boolean b);
+        void setBoolean(int edgeId, EdgeIntAccess edgeIntAccess, Boolean b);
     }
 
     public OSMConditionalRestrictionsParser(Collection<String> conditionals, Setter restrictionSetter, String dateRangeParserDate) {
@@ -72,11 +72,11 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         // List<Map<String, Object>> nodeTags = way.getTag("node_tags", null);
 
         Boolean b = getConditional(way.getTags());
-        if (b != null)
-        {
+//        if (b != null)
+//        {
             //this.readerConditionalWays_list.add(way);
             restrictionSetter.setBoolean(edgeId, edgeIntAccess, b);
-        }
+//        }
     }
 
     Boolean getConditional(Map<String, Object> tags) {
@@ -89,12 +89,12 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             else
             {
                 String[] strs = value.split("@");
-                if (strs.length == 2 && isInRange(strs[1].trim())) {
+                if (strs.length == 2 && Boolean.TRUE.equals(isInRange(strs[1].trim()))) {
                     if (strs[0].trim().equals("no")) return false;
                     if (strs[0].trim().equals("yes")) return true;
                 }
                 // Thêm vào
-                else if(strs.length == 2 && !isInRange(strs[1].trim()))
+                else if(strs.length == 2 && Boolean.FALSE.equals(isInRange(strs[1].trim())))
                 {
                     if (strs[0].trim().equals("no")) return true;
                     if (strs[0].trim().equals("yes")) return false;
@@ -105,7 +105,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         return null;
     }
 
-    private boolean isInRange(final String value) {
+    private Boolean isInRange(final String value) {
         if (value.isEmpty())
             return false;
 
@@ -142,7 +142,7 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             this.parser = DateTimeRangeParser.createInstance(dateRangeParserDate,dateRangeParserTime);
 
             if(!processedconditionalValue.contains("AND") && !processedconditionalValue.contains("and"))
-                if(processedconditionalValue.split(" ").length > 2) return  false;
+                if(processedconditionalValue.split(" ").length > 2) return  null;
 
             String [] timeRangeCount = parser.getTimeRangeCount(processedconditionalValue);
             String [] dateRangeCount = parser.getDateRangeCount(processedconditionalValue);
@@ -203,6 +203,6 @@ public class OSMConditionalRestrictionsParser implements TagParser {
             if (enabledLogs)
                 logger.warn("Cannot parse " + conditionalValue);
         }
-        return false;
+        return null;
     }
 }
