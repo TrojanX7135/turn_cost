@@ -1292,10 +1292,10 @@ public class GraphHopper {
         LocationIndexTree tmpIndex = new LocationIndexTree(baseGraph, dir);
         tmpIndex.setResolution(preciseIndexResolution);
         tmpIndex.setMaxRegionSearch(maxRegionSearch);
-        if (!tmpIndex.loadExisting()) {
+//        if (!tmpIndex.loadExisting()) {
             ensureWriteAccess();
             tmpIndex.prepareIndex();
-        }
+//        }
 
         return tmpIndex;
     }
