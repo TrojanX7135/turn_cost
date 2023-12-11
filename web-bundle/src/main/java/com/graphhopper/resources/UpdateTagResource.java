@@ -3,13 +3,17 @@ package com.graphhopper.resources;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
 import com.graphhopper.storage.IntsRef;
+import com.graphhopper.util.Constants;
+import org.locationtech.jts.geom.Envelope;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.Long.parseLong;
 
@@ -17,6 +21,10 @@ import static java.lang.Long.parseLong;
 @Produces(MediaType.APPLICATION_JSON)
 public class UpdateTagResource {
     private GraphHopper graphHopper;
+    public static class KeyValues {
+        public Map<String, String> KeyValuesMap;
+    }
+
     @Inject
     public UpdateTagResource(GraphHopper graphHopper)
     {
@@ -24,12 +32,14 @@ public class UpdateTagResource {
     }
 
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, "application/gpx+xml"})
-    public String doGet(
+    @Produces({MediaType.APPLICATION_JSON})
+    public KeyValues doGet(
             @QueryParam("OSMId") @DefaultValue("0")String OSMId,
             @QueryParam("key") @DefaultValue("None") String key,
             @QueryParam("value") @DefaultValue("None") String value)
     {
+        final KeyValues key_value = new KeyValues();
+        key_value.KeyValuesMap = new LinkedHashMap<>();
         ReaderWay way= this.graphHopper.getReader().getWaysegment().getWayFromOSMId(parseLong(OSMId));
         if(way != null)
         {
@@ -39,6 +49,7 @@ public class UpdateTagResource {
                 List<String> keysList = new ArrayList<>(way.getTags().keySet());
                 for (String s : keysList) {
                     if(s.contains("key_values")) break;
+                    key_value.KeyValuesMap.put(s, way.getTag(s));
                     System.out.println(s);
                 }
             }
@@ -54,9 +65,8 @@ public class UpdateTagResource {
                 }
                 System.out.print("New value: ");
                 System.out.println(way.getTag(key));
-                return "OKE";
             }
         }
-        return "FAIL";
+        return key_value;
     }
 }
