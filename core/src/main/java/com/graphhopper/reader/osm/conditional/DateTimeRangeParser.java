@@ -121,8 +121,6 @@ public class DateTimeRangeParser implements ConditionalValueParser {
     DateTimeRange getRange(String dateRangeString) throws ParseException {
         if (dateRangeString == null || dateRangeString.isEmpty())
             throw new IllegalArgumentException("Passing empty Strings is not allowed");
-        ParsedCalendar from_date;
-        ParsedCalendar to_date;
         ParsedTime from_time;
         ParsedTime to_time;
 
@@ -134,7 +132,10 @@ public class DateTimeRangeParser implements ConditionalValueParser {
 
         String[] dateArr = dateTimeArr[0].split("-");
         String[] timeArr = dateTimeArr[1].split("-");
-        from_date = parseDateString(dateArr[0]);
+        if (dateArr.length > 2 || dateArr.length < 1)
+            return null;
+        ParsedCalendar from_date = parseDateString(dateArr[0]);
+        ParsedCalendar to_date;
         if (dateArr.length == 2)
             to_date = parseDateString(dateArr[1]);
         else
