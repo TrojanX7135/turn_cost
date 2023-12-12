@@ -143,6 +143,10 @@ public class OSMConditionalRestrictionsParser implements TagParser {
 
             if(!processedconditionalValue.contains("AND") && !processedconditionalValue.contains("and"))
                 if(processedconditionalValue.split(" ").length > 2) return  null;
+            if(processedconditionalValue.contains("; "))
+                processedconditionalValue = processedconditionalValue.replaceAll("; ",";");
+            else if(processedconditionalValue.contains(", "))
+                processedconditionalValue = processedconditionalValue.replaceAll(", ",",");
 
             String [] timeRangeCount = parser.getTimeRangeCount(processedconditionalValue);
             String [] dateRangeCount = parser.getDateRangeCount(processedconditionalValue);
