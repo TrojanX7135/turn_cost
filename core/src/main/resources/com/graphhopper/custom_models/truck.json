@@ -16,14 +16,14 @@
       { "if": "max_weight < 2.5 && truck_access_conditional == MISSING","multiply_by": "0"},
       { "if": "max_weight < 2.5 && truck_access_conditional == NO", "multiply_by": "0" },
       { "if": "truck_access_conditional == NO", "multiply_by": "0" },
-      { "if": "traffic_stable == YES && truck_traffic_conditional == NO", "multiply_by": "0.1"}
+      { "if": "truck_traffic_conditional == NO", "multiply_by": "0.1"}
   ],
   "speed": [
 
 //      {"if": "max_weight < 2.5 && truck_access_conditional == MISSING","multiply_by": "0"},
 //      { "if": "max_weight < 2.5 && truck_access_conditional == NO", "multiply_by": "0" },
 //
-      { "if": "traffic_stable == YES && truck_traffic_conditional == NO", "multiply_by": "car_average_speed * 0.1"},
+      { "if": "truck_traffic_conditional == NO", "multiply_by": "car_average_speed * 0.1"},
       { "if": "true", "limit_to": "car_average_speed * 0.9" },
       { "if": "true", "limit_to": "95" }
   ]
