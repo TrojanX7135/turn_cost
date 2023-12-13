@@ -4,7 +4,7 @@ graphhopper:
     # Local folder used by graphhopper to store its data
     graph.location: graph-cache
     graph.vehicles: roads|transportation_mode=HGV|turn_costs=true,car|turn_costs=true,bike
-    graph.encoded_values: toll,hgv,surface,max_width,max_height,orientation
+    graph.encoded_values: toll,hgv,surface,max_width,max_height,orientation,lanes,road_class
 
     ##### Routing Profiles ####
 
@@ -31,13 +31,13 @@ graphhopper:
     profiles:
         - name: car
           vehicle: car
-          custom_model:
-            distance_influence: 70
+          custom_model_files: []
+#            distance_influence: 70
     #      turn_costs: true
     #      u_turn_costs: 60
 
         - name: truck
-          vehicle: car
+          vehicle: roads
           turn_costs: true
           custom_model: {      
             "distance_influence": 1,
@@ -47,14 +47,32 @@ graphhopper:
             ],
             "speed": [
               { "if": "true", "limit_to": "car_average_speed * 0.9" },
-              { "if": "true", "limit_to": "95" }
+              { "if": "true", "limit_to": "95" },
             ],
             "turn_costs": 
             {
-              "straight": 10,
-              "left": 10,
+              "straight": 1,
+              "left": 20,
               "right": 10,
-              "time_request": "11 <= time_request <= 13 10 200 10"
+              "time_request": "10 <= time_request <= 13 1 1.2 1.001", #thẳng, trái, phải
+              "left_affect": [
+                 { "if": "road_class == PRIMARY",  "multiply_by": "10" },
+                 { "if": "road_class == SECONDARY",  "multiply_by": "12" },  
+                 { "if": "road_class == TERTIARY",  "multiply_by": "15" },  
+                 { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" },       
+              ],
+              "right_affect": [
+                 { "if": "road_class == PRIMARY",  "multiply_by": "1.001" },
+                 { "if": "road_class == SECONDARY",  "multiply_by": "1.01" },  
+                 { "if": "road_class == TERTIARY",  "multiply_by": "1.05" },  
+                 { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" },              
+              ],
+              "straight_affect": [
+                 { "if": "road_class == PRIMARY",  "multiply_by": "1" },
+                 { "if": "road_class == SECONDARY",  "multiply_by": "1" },  
+                 { "if": "road_class == TERTIARY",  "multiply_by": "1" },  
+                 { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },            
+              ],              
             }
           }
           

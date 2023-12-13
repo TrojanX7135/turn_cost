@@ -32,6 +32,8 @@ import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.DistanceCalcEarth;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.TurnCostsConfig;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -74,6 +76,7 @@ public class PriorityRoutingTest {
         // A* and Dijkstra should yield the same path (the max priority must be taken into account by weighting.getMinWeight)
         {
             CustomModel customModel = new CustomModel();
+            TurnCostsConfig turnCostsConfig = new TurnCostsConfig();
             CustomWeighting weighting = CustomModelParser.createWeighting(accessEnc, speedEnc,
                     priorityEnc, em, TurnCostProvider.NO_TURN_COST_PROVIDER, customModel);
             Path pathDijkstra = new Dijkstra(graph, weighting, TraversalMode.NODE_BASED).calcPath(0, 3);
@@ -84,6 +87,7 @@ public class PriorityRoutingTest {
 
         {
             CustomModel customModel = new CustomModel();
+            TurnCostsConfig turnCostsConfig = new TurnCostsConfig();
             // now we even increase the priority in the custom model, which also needs to be accounted for in weighting.getMinWeight
             customModel.addToPriority(Statement.If("road_class == MOTORWAY", Statement.Op.MULTIPLY, "3"));
             CustomWeighting weighting = CustomModelParser.createWeighting(accessEnc, speedEnc,

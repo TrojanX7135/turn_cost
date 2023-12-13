@@ -23,6 +23,7 @@ import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
+import com.graphhopper.util.TurnCostsConfig;
 
 /**
  * Use this example to gain access to the low level API of GraphHopper.

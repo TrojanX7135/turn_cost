@@ -453,6 +453,7 @@ public class InstructionListTest {
         g.edge(2, 5).setDistance(10).set(roadsSpeedEnc, 10, 10).set(roadsAccessEnc, true, true).set(rcEV, RoadClass.PEDESTRIAN);
 
         CustomModel customModel = new CustomModel();
+        TurnCostsConfig turnCostsConfig = new TurnCostsConfig();
         customModel.addToPriority(Statement.If("road_class == PEDESTRIAN", Statement.Op.MULTIPLY, "0"));
         Weighting weighting = CustomModelParser.createWeighting(roadsAccessEnc, roadsSpeedEnc,
                 null, tmpEM, TurnCostProvider.NO_TURN_COST_PROVIDER, customModel);

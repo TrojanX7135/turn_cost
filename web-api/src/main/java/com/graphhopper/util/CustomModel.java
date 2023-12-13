@@ -163,6 +163,22 @@ public class CustomModel {
     public Double getHeadingPenalty() {
         return headingPenalty;
     }
+    
+    // Lấy từ TurnCostsConfig
+    
+   public List<Statement> CMgetLeftAffect() {
+       return turnCostsConfig.TCgetLeftAffect();
+   }
+   
+   public List<Statement> CMgetRightAffect() {
+	   return turnCostsConfig.TCgetRightAffect();
+   }
+   
+   public List<Statement> CMgetStraightAffect() {
+	   return turnCostsConfig.TCgetStraightAffect();
+   }
+    
+    //==================================
 
     @Override
     public String toString() {

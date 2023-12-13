@@ -59,6 +59,8 @@ public class HikeCustomModelTest {
             throw new RuntimeException(ex);
         }
     }
+    
+
 
     @Test
     public void testHikePrivate() {

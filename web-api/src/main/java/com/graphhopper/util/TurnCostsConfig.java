@@ -2,8 +2,11 @@ package com.graphhopper.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.graphhopper.GlobalVariables;
+import com.graphhopper.json.Statement;
+//import com.graphhopper.matching.Affect;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TurnCostsConfig {
 
@@ -18,6 +21,15 @@ public class TurnCostsConfig {
 	
 	@JsonProperty("time_request")
 	private String timeRequest;
+	
+	@JsonProperty("left_affect")
+	private List<Statement> leftAffect = new ArrayList<>();
+	
+	@JsonProperty("right_affect")
+	private List<Statement> rightAffect = new ArrayList<>();
+	
+	@JsonProperty("straight_affect")
+	private List<Statement> straightAffect = new ArrayList<>();
 	
 	private double calcLeft;
 	private double calcRight;
@@ -45,16 +57,30 @@ public class TurnCostsConfig {
         maxLeftAngle = copy.maxLeftAngle;
         minRightAngle = copy.minRightAngle;
         maxRightAngle = copy.maxRightAngle;
+    }   
+    
+    public List<Statement> TCgetLeftAffect() {
+        return leftAffect;
+    }
+
+    public List<Statement> TCgetRightAffect() {
+        return rightAffect;
     }
     
-    //Evn
+    public List<Statement> TCgetStraightAffect() {
+        return straightAffect;
+    }
+
+    
+    
+    //timeRequest
     public void setTimeRequest (String timeRequest) {
-//    	System.out.println("timeRequest: " + timeRequest);
     	this.timeRequest = timeRequest;
     	evaluateExpression(timeRequest);
-    	this.leftCost = this.left + this.calcLeft;
-    	this.rightCost = this.right + this.calcRight;
-    	this.straightCost = this.straight + this.calcStraight; 	
+    	   	
+    	this.leftCost = this.left * this.calcLeft;
+    	this.rightCost = this.right * this.calcRight;
+    	this.straightCost = this.straight * this.calcStraight; 	
     }
 
     // Left
@@ -65,7 +91,6 @@ public class TurnCostsConfig {
 
     public double getLeftCost() {
     	setTimeRequest(this.timeRequest);
-//    	System.out.println("left: " + leftCost);
         return leftCost;
     }
 
@@ -126,37 +151,36 @@ public class TurnCostsConfig {
         return maxRightAngle;
     }
     
+    
     private void evaluateExpression(String expression) {
     	String[] parts = expression.split(" ");
         if (expression.contains("time_request")) {
-//        	System.out.println("evaluateExpression khởi chạy");
-            // Tách biểu thức thành các phần
             int hour;
             if (GlobalVariables.getTimeRequest() != null) {
                 hour = GlobalVariables.getTimeRequest().getHour();
             } else {
                 hour = 12;
             }
-            System.out.println("HOUR" + hour);
+//            System.out.println("HOUR: " + hour);
             if (parts[1].equals("<=") && parts[3].equals("<=")) {
                 if (Integer.parseInt(parts[0]) <= hour && hour <= Integer.parseInt(parts[4])) {
                 	this.calcStraight = Double.parseDouble(parts[5]);
                 	this.calcLeft = Double.parseDouble(parts[6]);
                 	this.calcRight = Double.parseDouble(parts[7]);
                 } else {
-                	this.calcStraight = 0;
-                	this.calcLeft = 0;
-                	this.calcRight = 0;
+                	this.calcStraight = 1;
+                	this.calcLeft = 1;
+                	this.calcRight = 1;
                 }    
             } else {
-            	this.calcStraight = 0;
-            	this.calcLeft = 0;
-            	this.calcRight = 0;
+            	this.calcStraight = 1;
+            	this.calcLeft = 1;
+            	this.calcRight = 1;
             }
         } else {
-        	this.calcStraight = 0;
-        	this.calcLeft = 0;
-        	this.calcRight = 0;
+        	this.calcStraight = 1;
+        	this.calcLeft = 1;
+        	this.calcRight = 1;
         }
     }
 
@@ -170,16 +194,5 @@ public class TurnCostsConfig {
                 && Double.compare(that.maxLeftAngle, maxLeftAngle) == 0 && Double.compare(that.minRightAngle, minRightAngle) == 0
                 && Double.compare(that.maxRightAngle, maxRightAngle) == 0;
     }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(leftCost, rightCost, straightCost, minLeftAngle, maxLeftAngle, minRightAngle, maxRightAngle);
-    }
-
-    @Override
-    public String toString() {
-        return "leftCost=" + leftCost + ", rightCost=" + rightCost + ", straightCost=" + straightCost
-                + ", minLeftAngle=" + minLeftAngle + ", maxLeftAngle=" + maxLeftAngle
-                + ", minRightAngle=" + minRightAngle + ", maxRightAngle=" + maxRightAngle;
-    }
+    
 }

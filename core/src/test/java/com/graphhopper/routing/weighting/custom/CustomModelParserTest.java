@@ -316,7 +316,7 @@ class CustomModelParserTest {
     void testBackwardFunction() {
         CustomModel customModel = new CustomModel();
         customModel.addToPriority(If("backward_car_access != car_access", MULTIPLY, "0.5"));
-        CustomWeighting.EdgeToDoubleMapping priorityMapping = CustomModelParser.createWeightingParameters(customModel, encodingManager,
+        CustomWeighting.EdgeToDoubleMapping priorityMapping = CustomModelParser.createWeightingParameters( customModel, encodingManager,
                 avgSpeedEnc, maxSpeed, null).getEdgeToPriorityMapping();
 
         BaseGraph graph = new BaseGraph.Builder(encodingManager).create();

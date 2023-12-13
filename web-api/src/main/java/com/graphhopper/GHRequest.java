@@ -24,6 +24,7 @@ import com.graphhopper.util.Helper;
 import com.graphhopper.util.PMap;
 import com.graphhopper.util.shapes.GHPoint;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,8 @@ public class GHRequest {
     private String algo = "";
     private Locale locale = Locale.US;
     private CustomModel customModel;
+    private Timestamp time_request;
+    private Boolean turn_cost_status;
 
     public GHRequest() {
         this(5);
@@ -222,6 +225,25 @@ public class GHRequest {
     public List<String> getPathDetails() {
         return this.pathDetails;
     }
+ 
+    // TIME_REQUEST
+    public Timestamp getTimeRequest() {
+        return time_request;
+    }
+
+    public void setTimeRequest(Timestamp time_request) {
+        this.time_request = time_request;
+    }
+    
+    // TURN_COST_STATUS
+    public Boolean getTurnCostStatus() {
+    	return turn_cost_status;
+    }
+    
+    public void setTurnCostStatus(Boolean turn_cost_status) {
+        this.turn_cost_status = turn_cost_status;
+    }
+    
 
     @Override
     public String toString() {

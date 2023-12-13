@@ -47,6 +47,7 @@ import static com.graphhopper.util.Parameters.Routing.*;
 import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDateTime;
+//import org.joda.time.LocalDateTime;
 
 /**
  * Resource to use GraphHopper in a remote client application like mobile or browser. Note: If type
@@ -171,11 +172,20 @@ public class RouteResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPost(@NotNull GHRequest request, @Context HttpServletRequest httpReq) {
+
+        // Chuyển đổi từ Timestamp sang LocalDateTime bằng Joda-Time
+    	LocalDateTime localDateTime = request.getTimeRequest().toLocalDateTime();
         
-    	GlobalVariables.setTimeRequest(LocalDateTime.now());
+        // Thiết lập giá trị cho biến GlobalVariables
+        GlobalVariables.setTimeRequest(localDateTime);
+        GlobalVariables.setTurnCostStatus(request.getTurnCostStatus());
+        
+        System.out.println("timeRequest :" + GlobalVariables.getTimeRequest());
     	
     	StopWatch sw = new StopWatch().start();
         request = ghRequestTransformer.transformRequest(request);
+        
+
 
         if (Helper.isEmpty(request.getProfile()) && request.getCustomModel() != null)
             // throw a dedicated exception here, otherwise a missing profile is still caught in Router
