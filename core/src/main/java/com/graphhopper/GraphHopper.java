@@ -26,6 +26,7 @@ import com.graphhopper.jackson.Jackson;
 import com.graphhopper.reader.dem.*;
 import com.graphhopper.reader.osm.OSMReader;
 import com.graphhopper.reader.osm.RestrictionTagParser;
+import com.graphhopper.reader.osm.conditional.DateRangeParser;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.CHPreparationHandler;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
@@ -41,7 +42,6 @@ import com.graphhopper.routing.util.countryrules.CountryRuleFactory;
 import com.graphhopper.routing.util.parsers.*;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.routing.weighting.custom.CustomWeighting;
-import com.graphhopper.search.KVStorage;
 import com.graphhopper.storage.*;
 import com.graphhopper.storage.index.LocationIndex;
 import com.graphhopper.storage.index.LocationIndexTree;
@@ -133,8 +133,6 @@ public class GraphHopper {
     private String dateRangeParserString = "";
     private String encodedValuesString = "";
     private String vehiclesString = "";
-
-
     public GraphHopper setEncodedValuesString(String encodedValuesString) {
         this.encodedValuesString = encodedValuesString;
         return this;
