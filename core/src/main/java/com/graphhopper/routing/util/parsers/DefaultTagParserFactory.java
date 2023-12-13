@@ -79,9 +79,6 @@ public class DefaultTagParserFactory implements TagParserFactory {
         else if (name.equals(HorseRating.KEY))
             return new OSMHorseRatingParser(lookup.getIntEncodedValue(HorseRating.KEY));
 
-        // thêm traffic_stable
-        else if (name.equals(TrafficStable.KEY))
-            return new OSMTrafficStableParser(lookup.getEnumEncodedValue(TrafficStable.KEY, TrafficStable.class));
 
         else if (name.equals(Footway.KEY))
             return new OSMFootwayParser(lookup.getEnumEncodedValue(Footway.KEY, Footway.class));

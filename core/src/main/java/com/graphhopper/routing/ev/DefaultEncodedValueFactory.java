@@ -112,10 +112,6 @@ public class DefaultEncodedValueFactory implements EncodedValueFactory {
         } else if (MotorcycleAccessConditional.KEY.equals(name)) {
             return MotorcycleAccessConditional.create();
 
-            // Thêm traffic_statble
-        } else if (TrafficStable.KEY.equals(name)) {
-            return TrafficStable.create();
-
         } else if (FerrySpeed.KEY.equals(name)) {
             return FerrySpeed.create();
         } else {
