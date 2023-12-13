@@ -20,7 +20,6 @@ package com.graphhopper.reader.osm.conditional;
 import com.graphhopper.util.Helper;
 
 import java.text.DateFormat;
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -36,7 +35,6 @@ import static com.graphhopper.util.Helper.createFormatter;
  * @author Robin Boldt
  */
 public class TimeRangeParser implements ConditionalValueParser {
-    private static final SimpleDateFormat HOUR_MINUTE = createFormatter("HH:mm");
 
     private Calendar date;
 
@@ -55,20 +53,11 @@ public class TimeRangeParser implements ConditionalValueParser {
     }
 
     static ParsedTime parseTimeString(String timeString) throws ParseException {
-        try {
-            HOUR_MINUTE.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date date = HOUR_MINUTE.parse(timeString);
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            ParsedTime parsedtime;
-            calendar.setTime(date);
-            parsedtime = new ParsedTime(ParsedTime.ParseType.HOUR_MINUTE, calendar);
-            return parsedtime;
-        }catch(ParseException e)
-        {
-            // Xử lý ngoại lệ theo cách phù hợp với yêu cầu của GraphHopper
-            e.printStackTrace(); // In stack trace để xem chi tiết lỗi
-            return null; // hoặc throw một exception khác tùy vào yêu cầu
-        }
+        Calendar calendar = createCalendar();
+        calendar.set(Calendar.YEAR, 1970);
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.setTime(Helper.createFormatter("HH:mm").parse(timeString));
+        return new ParsedTime(ParsedTime.ParseType.HOUR_MINUTE, calendar);
     }
 
     TimeRange getRange(String timeRangeString) throws ParseException {
@@ -89,14 +78,6 @@ public class TimeRangeParser implements ConditionalValueParser {
         } catch (IllegalArgumentException ex) {
             return null;
         }
-    }
-
-    public String [] getTimeRangeCount(String timeRangeString)
-    {
-        String[] count = timeRangeString.split(",");
-//        System.out.print("So khoang thoi gian: ");
-//        System.out.println(count.length);
-        return count;
     }
 
     @Override
@@ -123,10 +104,5 @@ public class TimeRangeParser implements ConditionalValueParser {
             throw new IllegalArgumentException(e);
         }
         return new TimeRangeParser(calendar);
-    }
-
-
-    private static SimpleDateFormat createFormatter(String format) {
-        return new SimpleDateFormat(format);
     }
 }

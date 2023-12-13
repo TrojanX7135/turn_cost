@@ -36,7 +36,6 @@ import static com.graphhopper.util.Helper.createFormatter;
  * @author Robin Boldt
  */
 public class DateTimeRangeParser implements ConditionalValueParser {
-    private static final SimpleDateFormat HOUR_MINUTE = createTimeFormatter("HH:mm");
     private static final DateFormat YEAR_MONTH_DAY_DF = create3CharMonthFormatter("yyyy MMM dd");
     private static final DateFormat MONTH_DAY_DF = create3CharMonthFormatter("MMM dd");
     private static final DateFormat MONTH_DAY2_DF = createFormatter("dd.MM");
@@ -112,20 +111,11 @@ public class DateTimeRangeParser implements ConditionalValueParser {
     }
 
     static ParsedTime parseTimeString(String timeString) throws ParseException {
-        try {
-            HOUR_MINUTE.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date date = HOUR_MINUTE.parse(timeString);
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-            ParsedTime parsedtime;
-            calendar.setTime(date);
-            parsedtime = new ParsedTime(ParsedTime.ParseType.HOUR_MINUTE, calendar);
-            return parsedtime;
-        }catch(ParseException e)
-        {
-            // Xử lý ngoại lệ theo cách phù hợp với yêu cầu của GraphHopper
-            e.printStackTrace(); // In stack trace để xem chi tiết lỗi
-            return null; // hoặc throw một exception khác tùy vào yêu cầu
-        }
+        Calendar calendar = createCalendar();
+        calendar.set(Calendar.YEAR, 1970);
+        calendar.set(Calendar.MONTH, Calendar.JANUARY);
+        calendar.setTime(Helper.createFormatter("HH:mm").parse(timeString));
+        return new ParsedTime(ParsedTime.ParseType.HOUR_MINUTE, calendar);
     }
 
     DateTimeRange getRange(String dateRangeString) throws ParseException {
@@ -249,9 +239,5 @@ public class DateTimeRangeParser implements ConditionalValueParser {
         System.out.print("So khoang ngay: ");
         System.out.println(count.length);
         return count;
-    }
-
-    private static SimpleDateFormat createTimeFormatter(String format) {
-        return new SimpleDateFormat(format);
     }
 }
