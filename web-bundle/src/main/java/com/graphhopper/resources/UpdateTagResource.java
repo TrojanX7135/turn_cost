@@ -64,24 +64,28 @@ public class UpdateTagResource {
             }
             else
             {
-                System.out.print("Old value: ");
-                System.out.println(way.getTag(key));
                 if(!checkExists(key,processedkeysList))
                 {
                     processedkeysList.add(key);
                     way.setTag(key,value);
+                    System.out.print("New key: ");
+                    System.out.println(key);
+                    System.out.print("New value: ");
+                    System.out.println(way.getTag(key));
                 }
                 else
                 {
+                    System.out.print("Old value: ");
+                    System.out.println(way.getTag(key));
                     way.setTag(key,value);
+                    System.out.print("New value: ");
+                    System.out.println(way.getTag(key));
                 }
                 IntsRef relationFlags = this.graphHopper.getReader().getRelFlagsMap(parseLong(OSMId));
                 for (Integer integer : listEdge)
                 {
                     this.graphHopper.getOSMParsers().handleWayTags(integer, this.graphHopper.getBaseGraph().createEdgeIntAccess(), way, relationFlags);
                 }
-                System.out.print("New value: ");
-                System.out.println(way.getTag(key));
             }
         }
         return key_value;

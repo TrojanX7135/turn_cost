@@ -212,8 +212,8 @@ public class DateTimeRangeParser implements ConditionalValueParser {
             }
         }
 
-        System.out.print("So khoang thoi gian: ");
-        System.out.println(count.length);
+//        System.out.print("So khoang thoi gian: ");
+//        System.out.println(count.length);
         return count;
     }
 
@@ -237,8 +237,8 @@ public class DateTimeRangeParser implements ConditionalValueParser {
                 count = (DateTimeArr[0].contains(";")) ? DateTimeArr[0].split(";") : (DateTimeArr[0].contains("AND")) ? DateTimeArr[0].split(" AND ") : (DateTimeArr[0].contains("and")) ? DateTimeArr[0].split(" and ") : DateTimeArr[0].split(",");
             }
         }
-        System.out.print("So khoang ngay: ");
-        System.out.println(count.length);
+//        System.out.print("So khoang ngay: ");
+//        System.out.println(count.length);
         return count;
     }
 }
