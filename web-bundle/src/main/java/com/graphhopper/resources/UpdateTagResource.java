@@ -2,8 +2,12 @@ package com.graphhopper.resources;
 
 import com.graphhopper.GraphHopper;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.routing.ev.EncodedValueLookup;
+import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.parsers.TagParser;
 import com.graphhopper.storage.IntsRef;
 import com.graphhopper.util.Constants;
+import com.graphhopper.util.PMap;
 import org.locationtech.jts.geom.Envelope;
 
 import javax.inject.Inject;
@@ -20,6 +24,7 @@ import static java.lang.Long.parseLong;
 @Path("updateTag")
 @Produces(MediaType.APPLICATION_JSON)
 public class UpdateTagResource {
+    static List<String> processedkeysList = new ArrayList<>();
     private GraphHopper graphHopper;
     public static class KeyValues {
         public Map<String, String> KeyValuesMap;
@@ -43,12 +48,16 @@ public class UpdateTagResource {
         ReaderWay way= this.graphHopper.getReader().getWaysegment().getWayFromOSMId(parseLong(OSMId));
         if(way != null)
         {
+            List<String> keysList = new ArrayList<>(way.getTags().keySet());
+            for (String s : keysList) {
+                if (s.contains("key_values")) break;
+                processedkeysList.add(s);
+            }
+
             List<Integer> listEdge = this.graphHopper.getReader().getEgdeFromWay(parseLong(OSMId));
             if(key.contains("None") && value.contains("None"))
             {
-                List<String> keysList = new ArrayList<>(way.getTags().keySet());
-                for (String s : keysList) {
-                    if(s.contains("key_values")) break;
+                for (String s : processedkeysList) {
                     key_value.KeyValuesMap.put(s, way.getTag(s));
                     System.out.println(s);
                 }
@@ -57,7 +66,15 @@ public class UpdateTagResource {
             {
                 System.out.print("Old value: ");
                 System.out.println(way.getTag(key));
-                way.setTag(key,value);
+                if(!checkExists(key,processedkeysList))
+                {
+                    processedkeysList.add(key);
+                    way.setTag(key,value);
+                }
+                else
+                {
+                    way.setTag(key,value);
+                }
                 IntsRef relationFlags = this.graphHopper.getReader().getRelFlagsMap(parseLong(OSMId));
                 for (Integer integer : listEdge)
                 {
@@ -68,5 +85,14 @@ public class UpdateTagResource {
             }
         }
         return key_value;
+    }
+
+    private boolean checkExists(String Querykey, List<String> listKey)
+    {
+        for(String key : listKey)
+        {
+            if(key.equals(Querykey)) return true;
+        }
+        return false;
     }
 }

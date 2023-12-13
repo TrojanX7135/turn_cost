@@ -94,10 +94,10 @@ graphhopper:
   # list you can define for which of the above routing profiles such preparation shall be performed. Note that to support
   # profiles with `turn_costs: true` a more elaborate preparation is required (longer preparation time and more memory
   # usage) and the routing will also be slower than with `turn_costs: false`.
-#  profiles_ch:
+  profiles_ch: []
 #    - profile: truck
+#    - profile: small_truck
 #    - profile: car
-#    - profile: bike
 #    - profile: motorcycle
 
   # Hybrid mode:
