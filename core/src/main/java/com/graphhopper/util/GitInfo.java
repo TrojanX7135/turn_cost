@@ -56,6 +56,6 @@ public class GitInfo {
     }
 
     public String toString() {
-        return String.join("|", Arrays.asList(commitHash, branch, "dirty=" + dirty, commitTime, commitMessage));
+        return Helper.join("|", Arrays.asList(commitHash, branch, "dirty=" + dirty, commitTime, commitMessage));
     }
 }

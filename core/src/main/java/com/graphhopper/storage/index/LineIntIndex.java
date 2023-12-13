@@ -159,12 +159,8 @@ public class LineIntIndex {
     }
 
     public void query(BBox queryShape, final LocationIndex.Visitor function) {
-        query(LocationIndex.createBBoxTileFilter(queryShape), function);
-    }
-
-    public void query(LocationIndex.TileFilter tileFilter, final LocationIndex.Visitor function) {
         final IntHashSet set = new IntHashSet();
-        query(START_POINTER, tileFilter,
+        query(START_POINTER, queryShape,
                 bounds.minLat, bounds.minLon, bounds.maxLat - bounds.minLat, bounds.maxLon - bounds.minLon,
                 new LocationIndex.Visitor() {
                     @Override
@@ -185,7 +181,7 @@ public class LineIntIndex {
                 }, 0);
     }
 
-    private void query(int intPointer, LocationIndex.TileFilter tileFilter,
+    private void query(int intPointer, BBox queryBBox,
                        double minLat, double minLon,
                        double deltaLatPerDepth, double deltaLonPerDepth,
                        LocationIndex.Visitor function, int depth) {
@@ -217,14 +213,14 @@ public class LineIntIndex {
             double tmpMinLon = minLon + deltaLonPerDepth * pixelXY[0];
             double tmpMinLat = minLat + deltaLatPerDepth * pixelXY[1];
 
-            BBox bbox = (tileFilter != null || function.isTileInfo()) ? new BBox(tmpMinLon, tmpMinLon + deltaLonPerDepth, tmpMinLat, tmpMinLat + deltaLatPerDepth) : null;
+            BBox bbox = (queryBBox != null || function.isTileInfo()) ? new BBox(tmpMinLon, tmpMinLon + deltaLonPerDepth, tmpMinLat, tmpMinLat + deltaLatPerDepth) : null;
             if (function.isTileInfo())
                 function.onTile(bbox, depth);
-            if (tileFilter == null || tileFilter.acceptAll(bbox)) {
+            if (queryBBox == null || queryBBox.contains(bbox)) {
                 // fill without a restriction!
                 query(nextIntPointer, null, tmpMinLat, tmpMinLon, deltaLatPerDepth, deltaLonPerDepth, function, depth + 1);
-            } else if (tileFilter.acceptPartially(bbox)) {
-                query(nextIntPointer, tileFilter, tmpMinLat, tmpMinLon, deltaLatPerDepth, deltaLonPerDepth, function, depth + 1);
+            } else if (queryBBox.intersects(bbox)) {
+                query(nextIntPointer, queryBBox, tmpMinLat, tmpMinLon, deltaLatPerDepth, deltaLonPerDepth, function, depth + 1);
             }
         }
     }

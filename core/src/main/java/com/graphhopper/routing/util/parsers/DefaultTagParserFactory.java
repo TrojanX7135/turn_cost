@@ -78,8 +78,6 @@ public class DefaultTagParserFactory implements TagParserFactory {
             return new OSMHikeRatingParser(lookup.getIntEncodedValue(HikeRating.KEY));
         else if (name.equals(HorseRating.KEY))
             return new OSMHorseRatingParser(lookup.getIntEncodedValue(HorseRating.KEY));
-
-
         else if (name.equals(Footway.KEY))
             return new OSMFootwayParser(lookup.getEnumEncodedValue(Footway.KEY, Footway.class));
         else if (name.equals(Country.KEY))
@@ -129,6 +127,7 @@ public class DefaultTagParserFactory implements TagParserFactory {
             Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b == null ? MotorcycleAccessConditional.MISSING : b ? MotorcycleAccessConditional.YES : MotorcycleAccessConditional.NO);
             return new OSMConditionalRestrictionsParser(MotorcycleAccessConditional.CONDITIONALS, fct, "");
         } else if (name.equals(FerrySpeed.KEY))
+        else if (name.equals(FerrySpeed.KEY))
             return new FerrySpeedCalculator(lookup.getDecimalEncodedValue(FerrySpeed.KEY));
         return null;
     }

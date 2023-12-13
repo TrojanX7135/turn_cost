@@ -20,6 +20,9 @@ package com.graphhopper.resources;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.graphhopper.GHRequest;
 import com.graphhopper.GHResponse;
+import com.graphhopper.GHRequest;
+import com.graphhopper.GHResponse;
+import com.graphhopper.GlobalVariables;
 import com.graphhopper.GraphHopper;
 import com.graphhopper.gpx.GpxConversions;
 import com.graphhopper.http.GHPointParam;
@@ -157,6 +160,7 @@ public class RouteResource {
         profileName = profileResolver.resolveProfile(profileResolverHints);
         removeLegacyParameters(request.getHints());
         request.setProfile(profileName);
+
         GHResponse ghResponse = graphHopper.route(request);
 
         double took = sw.stop().getMillisDouble();
@@ -191,8 +195,20 @@ public class RouteResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response doPost(@NotNull GHRequest request, @Context HttpServletRequest httpReq) {
-        StopWatch sw = new StopWatch().start();
+
+        // Chuyển đổi từ Timestamp sang LocalDateTime bằng Joda-Time
+    	LocalDateTime localDateTime = request.getTimeRequest().toLocalDateTime();
+        
+        // Thiết lập giá trị cho biến GlobalVariables
+        GlobalVariables.setTimeRequest(localDateTime);
+        GlobalVariables.setTurnCostStatus(request.getTurnCostStatus());
+        
+        System.out.println("timeRequest :" + GlobalVariables.getTimeRequest());
+    	
+    	StopWatch sw = new StopWatch().start();
         request = ghRequestTransformer.transformRequest(request);
+        
+
 
         if (Helper.isEmpty(request.getProfile()) && request.getCustomModel() != null)
             // throw a dedicated exception here, otherwise a missing profile is still caught in Router

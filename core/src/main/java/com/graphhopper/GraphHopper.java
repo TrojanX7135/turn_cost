@@ -688,6 +688,14 @@ public class GraphHopper {
         vehiclesByName.forEach((name, vehicleStr) -> {
             VehicleTagParsers vehicleTagParsers = vehicleTagParserFactory.createParsers(encodingManager, name,
                     new PMap(vehicleStr));
+        if (encodingManager.hasEncodedValue(Orientation.KEY))
+            osmParsers.addWayTagParser(new OrientationCalculator(encodingManager.getDecimalEncodedValue(Orientation.KEY)));
+
+        DateRangeParser dateRangeParser = DateRangeParser.createInstance(dateRangeParserString);
+        Set<String> added = new HashSet<>();
+        vehiclesByName.forEach((name, vehicleStr) -> {
+            VehicleTagParsers vehicleTagParsers = vehicleTagParserFactory.createParsers(encodingManager, name,
+                    new PMap(vehicleStr).putObject("date_range_parser", dateRangeParser));
             if (vehicleTagParsers == null)
                 return;
             vehicleTagParsers.getTagParsers().forEach(tagParser -> {
@@ -877,7 +885,6 @@ public class GraphHopper {
                 .withTurnCosts(encodingManager.needsTurnCostsSupport())
                 .setSegmentSize(defaultSegmentSize)
                 .build();
-
         properties = new StorableProperties(directory);
         checkProfilesConsistency();
 
@@ -1423,7 +1430,7 @@ public class GraphHopper {
         return jobs;
     }
 
-    public void flush() {
+    protected void flush() {
         logger.info("flushing graph " + getBaseGraphString() + ", details:" + baseGraph.toDetailsString() + ", "
                 + getMemInfo() + ")");
         baseGraph.flush();

@@ -30,6 +30,7 @@ public class FindMinMax {
                         + bmDI + ", but was: " + queryModel.getDistanceInfluence());
         }
 
+        queryModel.checkTurnCostConfigForLM(baseModel.getTurnCostsConfig());
         checkMultiplyValue(queryModel.getPriority(), lookup);
         checkMultiplyValue(queryModel.getSpeed(), lookup);
     }

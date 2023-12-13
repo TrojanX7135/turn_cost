@@ -23,6 +23,7 @@ import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.FetchMode;
 import com.graphhopper.util.GHUtility;
 import com.graphhopper.util.JsonFeature;
+import com.graphhopper.util.TurnCostsConfig;
 import com.graphhopper.util.shapes.BBox;
 import com.graphhopper.util.shapes.Polygon;
 
@@ -35,6 +36,15 @@ import java.util.Map;
 public class CustomWeightingHelper {
     protected DecimalEncodedValue avg_speed_enc;
     protected DecimalEncodedValue priority_enc;
+    
+    protected DecimalEncodedValue leftAffectVar_enc;
+    protected DecimalEncodedValue rightAffectVar_enc;
+    protected DecimalEncodedValue straightAffectVar_enc;
+    
+    
+//    protected DecimalEncodedValue lanes;
+    protected EncodedValueLookup lookup;
+    TurnCostsConfig config = new TurnCostsConfig();
 
     protected CustomWeightingHelper() {
     }
@@ -42,6 +52,7 @@ public class CustomWeightingHelper {
     public void init(EncodedValueLookup lookup, DecimalEncodedValue avgSpeedEnc, DecimalEncodedValue priorityEnc, Map<String, JsonFeature> areas) {
         this.avg_speed_enc = avgSpeedEnc;
         this.priority_enc = priorityEnc;
+        this.lookup = lookup;
     }
 
     public double getPriority(EdgeIteratorState edge, boolean reverse) {
@@ -51,7 +62,43 @@ public class CustomWeightingHelper {
     public double getSpeed(EdgeIteratorState edge, boolean reverse) {
         return getRawSpeed(edge, reverse);
     }
+    
+    public double getLeftAffect(EdgeIteratorState edge, boolean reverse) {
+        return getRawRightAffect(edge, reverse);
+    }
+    
+    public double getRightAffect(EdgeIteratorState edge, boolean reverse) {
+        return getRawRightAffect(edge, reverse);
+    }
 
+    public double getStraightAffect(EdgeIteratorState edge, boolean reverse) {
+        return getRawStraightAffect(edge, reverse);
+    }
+    
+    protected final double getRawLeftAffect(EdgeIteratorState edge, boolean reverse) {
+    	if (leftAffectVar_enc == null) return 1;
+        double leftAffect = reverse ? edge.getReverse(leftAffectVar_enc) : edge.get(leftAffectVar_enc);
+        if (Double.isInfinite(leftAffect) || Double.isNaN(leftAffect) || leftAffect < 0)
+            throw new IllegalStateException("Invalid estimated leftAffect " + leftAffect);
+        return leftAffect;
+    }
+    
+    protected final double getRawRightAffect(EdgeIteratorState edge, boolean reverse) {
+    	if (rightAffectVar_enc == null) return 1;
+        double rightAffect = reverse ? edge.getReverse(rightAffectVar_enc) : edge.get(rightAffectVar_enc);
+        if (Double.isInfinite(rightAffect) || Double.isNaN(rightAffect) || rightAffect < 0)
+            throw new IllegalStateException("Invalid estimated rightAffect " + rightAffect);
+        return rightAffect;
+    }
+    
+    protected final double getRawStraightAffect(EdgeIteratorState edge, boolean reverse) {
+    	if (straightAffectVar_enc == null) return 1;
+        double straightAffect = reverse ? edge.getReverse(straightAffectVar_enc) : edge.get(straightAffectVar_enc);
+        if (Double.isInfinite(straightAffect) || Double.isNaN(straightAffect) || straightAffect < 0)
+            throw new IllegalStateException("Invalid estimated straightAffect " + straightAffect);
+        return straightAffect;
+    }
+    
     protected final double getRawSpeed(EdgeIteratorState edge, boolean reverse) {
         double speed = reverse ? edge.getReverse(avg_speed_enc) : edge.get(avg_speed_enc);
         if (Double.isInfinite(speed) || Double.isNaN(speed) || speed < 0)

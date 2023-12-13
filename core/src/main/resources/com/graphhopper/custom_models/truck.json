@@ -26,5 +26,30 @@
       { "if": "truck_traffic_conditional == NO", "multiply_by": "car_average_speed * 0.1"},
       { "if": "true", "limit_to": "car_average_speed * 0.9" },
       { "if": "true", "limit_to": "95" }
-  ]
+  ],
+    "turn_costs":
+    {
+        "straight": 1,
+        "left": 20,
+        "right": 10,
+        "time_request": "10 <= time_request <= 13 1 1.2 1.001",
+        "left_affect": [
+            { "if": "road_class == PRIMARY",  "multiply_by": "10" },
+            { "if": "road_class == SECONDARY",  "multiply_by": "12" },
+            { "if": "road_class == TERTIARY",  "multiply_by": "15" },
+            { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" }
+        ],
+        "right_affect": [
+            { "if": "road_class == PRIMARY",  "multiply_by": "1.001" },
+            { "if": "road_class == SECONDARY",  "multiply_by": "1.01" },
+            { "if": "road_class == TERTIARY",  "multiply_by": "1.05" },
+            { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" }
+        ],
+        "straight_affect": [
+            { "if": "road_class == PRIMARY",  "multiply_by": "1" },
+            { "if": "road_class == SECONDARY",  "multiply_by": "1" },
+            { "if": "road_class == TERTIARY",  "multiply_by": "1" },
+            { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" }
+        ]
+    }
 }

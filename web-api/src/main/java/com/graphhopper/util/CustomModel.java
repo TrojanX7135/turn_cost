@@ -17,6 +17,7 @@
  */
 package com.graphhopper.util;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.graphhopper.jackson.CustomModelAreasDeserializer;
 import com.graphhopper.json.Statement;
@@ -34,6 +35,7 @@ public class CustomModel {
     private boolean internal;
     private List<Statement> speedStatements = new ArrayList<>();
     private List<Statement> priorityStatements = new ArrayList<>();
+    private TurnCostsConfig turnCostsConfig = new TurnCostsConfig();
     private JsonFeatureCollection areas = new JsonFeatureCollection();
 
     public CustomModel() {
@@ -46,6 +48,7 @@ public class CustomModel {
 
         speedStatements = deepCopy(toCopy.getSpeed());
         priorityStatements = deepCopy(toCopy.getPriority());
+        turnCostsConfig = new TurnCostsConfig(toCopy.turnCostsConfig);
 
         addAreas(toCopy.getAreas());
     }
@@ -133,6 +136,16 @@ public class CustomModel {
         return areas;
     }
 
+    @JsonProperty("turn_costs")
+    public CustomModel setTurnCostsConfig(TurnCostsConfig turnCostsConfig) {
+        this.turnCostsConfig = turnCostsConfig;
+        return this;
+    }
+
+    public TurnCostsConfig getTurnCostsConfig() {
+        return turnCostsConfig;
+    }
+
     public CustomModel setDistanceInfluence(Double distanceFactor) {
         this.distanceInfluence = distanceFactor;
         return this;
@@ -150,6 +163,22 @@ public class CustomModel {
     public Double getHeadingPenalty() {
         return headingPenalty;
     }
+    
+    // Lấy từ TurnCostsConfig
+    
+   public List<Statement> CMgetLeftAffect() {
+       return turnCostsConfig.TCgetLeftAffect();
+   }
+   
+   public List<Statement> CMgetRightAffect() {
+	   return turnCostsConfig.TCgetRightAffect();
+   }
+   
+   public List<Statement> CMgetStraightAffect() {
+	   return turnCostsConfig.TCgetStraightAffect();
+   }
+    
+    //==================================
 
     @Override
     public String toString() {
@@ -159,7 +188,8 @@ public class CustomModel {
     private String createContentString() {
         // used to check against stored custom models, see #2026
         return "distanceInfluence=" + distanceInfluence + "|headingPenalty=" + headingPenalty
-                + "|speedStatements=" + speedStatements + "|priorityStatements=" + priorityStatements + "|areas=" + areas;
+                + "|speedStatements=" + speedStatements + "|priorityStatements=" + priorityStatements
+                + "|areas=" + areas + "|turnCostConfig=" + turnCostsConfig;
     }
 
     /**
@@ -178,8 +208,27 @@ public class CustomModel {
             mergedCM.headingPenalty = queryModel.headingPenalty;
         mergedCM.speedStatements.addAll(queryModel.getSpeed());
         mergedCM.priorityStatements.addAll(queryModel.getPriority());
-        mergedCM.addAreas(queryModel.getAreas());
 
+        mergedCM.setTurnCostsConfig(new TurnCostsConfig(queryModel.getTurnCostsConfig()));
+        mergedCM.addAreas(queryModel.getAreas());
         return mergedCM;
+    }
+
+    public void checkTurnCostConfigForLM(TurnCostsConfig baseModelTCConfig) {
+        if (turnCostsConfig.getLeftCost() < baseModelTCConfig.getLeftCost())
+            throw new IllegalArgumentException("left turn cost can only increase but was " + turnCostsConfig.getLeftCost() + " < " + baseModelTCConfig.getLeftCost());
+        if (turnCostsConfig.getRightCost() < baseModelTCConfig.getRightCost())
+            throw new IllegalArgumentException("right turn cost can only increase but was " + turnCostsConfig.getRightCost() + " < " + baseModelTCConfig.getRightCost());
+        if (turnCostsConfig.getStraightCost() < baseModelTCConfig.getStraightCost())
+            throw new IllegalArgumentException("straight costs can only increase but was " + turnCostsConfig.getStraightCost() + " < " + baseModelTCConfig.getStraightCost());
+
+        if (turnCostsConfig.getMaxLeftAngle() != baseModelTCConfig.getMaxLeftAngle())
+            throw new IllegalArgumentException("max left angle must be identical but was " + turnCostsConfig.getMaxLeftAngle() + "!=" + baseModelTCConfig.getMaxLeftAngle());
+        if (turnCostsConfig.getMinLeftAngle() != baseModelTCConfig.getMinLeftAngle())
+            throw new IllegalArgumentException("min left angle must be identical but was " + turnCostsConfig.getMinLeftAngle() + "!=" + baseModelTCConfig.getMinLeftAngle());
+        if (turnCostsConfig.getMaxRightAngle() != baseModelTCConfig.getMaxRightAngle())
+            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMaxRightAngle() + "!=" + baseModelTCConfig.getMaxRightAngle());
+        if (turnCostsConfig.getMinRightAngle() != baseModelTCConfig.getMinRightAngle())
+            throw new IllegalArgumentException("max right angle must be identical but was " + turnCostsConfig.getMinRightAngle() + "!=" + baseModelTCConfig.getMinRightAngle());
     }
 }

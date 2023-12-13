@@ -21,8 +21,14 @@ import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.weighting.AbstractWeighting;
 import com.graphhopper.routing.weighting.TurnCostProvider;
+import com.graphhopper.storage.Graph;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.EdgeIteratorState;
+import com.graphhopper.util.FetchMode;
+import com.graphhopper.util.TurnCostsConfig;
+import com.graphhopper.GlobalVariables;
+
+import static com.graphhopper.util.AngleCalc.ANGLE_CALC;
 
 /**
  * The CustomWeighting allows adjusting the edge weights relative to those we'd obtain for a given base flag encoder.
@@ -83,11 +89,21 @@ public final class CustomWeighting extends AbstractWeighting {
     private final double headingPenaltySeconds;
     private final EdgeToDoubleMapping edgeToSpeedMapping;
     private final EdgeToDoubleMapping edgeToPriorityMapping;
+    private final EdgeToDoubleMapping edgeToLeftAffectMapping;
+    private final EdgeToDoubleMapping edgeToRightAffectMapping;
+    private final EdgeToDoubleMapping edgeToStraightAffectMapping;
+    
+    private static double LeftAffect;
+    private static double RightAffect;
+    private static double StraightAffect;
 
     public CustomWeighting(BooleanEncodedValue baseAccessEnc, DecimalEncodedValue baseSpeedEnc, TurnCostProvider turnCostProvider, Parameters parameters) {
         super(baseAccessEnc, baseSpeedEnc, turnCostProvider);
         this.edgeToSpeedMapping = parameters.getEdgeToSpeedMapping();
         this.edgeToPriorityMapping = parameters.getEdgeToPriorityMapping();
+        this.edgeToLeftAffectMapping = parameters.getEdgeToLeftAffectMapping();
+        this.edgeToRightAffectMapping = parameters.getEdgeToRightAffectMapping();
+        this.edgeToStraightAffectMapping = parameters.getEdgeToStraightAffectMapping();
         this.headingPenaltySeconds = parameters.getHeadingPenaltySeconds();
         this.maxSpeed = parameters.getMaxSpeed() / SPEED_CONV;
         this.maxPriority = parameters.getMaxPriority();
@@ -123,6 +139,12 @@ public final class CustomWeighting extends AbstractWeighting {
             return Double.POSITIVE_INFINITY;
 
         double speed = edgeToSpeedMapping.get(edgeState, reverse);
+//        System.out.println("SPEED: " + speed);
+        
+        LeftAffect = edgeToLeftAffectMapping.get(edgeState, reverse);
+        RightAffect = edgeToRightAffectMapping.get(edgeState, reverse);
+        StraightAffect = edgeToStraightAffectMapping.get(edgeState, reverse);
+        
         if (speed > maxSpeed * SPEED_CONV)
             throw new IllegalStateException("for " + getName() + " speed <= maxSpeed is violated, " + speed + " <= " + maxSpeed * SPEED_CONV);
         if (speed == 0)
@@ -151,19 +173,43 @@ public final class CustomWeighting extends AbstractWeighting {
     public static class Parameters {
         private final EdgeToDoubleMapping edgeToSpeedMapping;
         private final EdgeToDoubleMapping edgeToPriorityMapping;
+        private final EdgeToDoubleMapping edgeToLeftAffectMapping;
+        private final EdgeToDoubleMapping edgeToRightAffectMapping;
+        private final EdgeToDoubleMapping edgeToStraightAffectMapping;
         private final double maxSpeed;
         private final double maxPriority;
         private final double distanceInfluence;
         private final double headingPenaltySeconds;
 
-        public Parameters(EdgeToDoubleMapping edgeToSpeedMapping, EdgeToDoubleMapping edgeToPriorityMapping,
-                          double maxSpeed, double maxPriority, double distanceInfluence, double headingPenaltySeconds) {
+        public Parameters(EdgeToDoubleMapping edgeToSpeedMapping, EdgeToDoubleMapping edgeToPriorityMapping, 
+			        		EdgeToDoubleMapping edgeToLeftAffectMapping, 
+			        		EdgeToDoubleMapping edgeToRightAffectMapping, 
+			        		EdgeToDoubleMapping edgeToStraightAffectMapping,
+                          double maxSpeed, double maxPriority, double distanceInfluence, double headingPenaltySeconds,
+                          TurnCostsConfig turnCostsConfig) {
             this.edgeToSpeedMapping = edgeToSpeedMapping;
             this.edgeToPriorityMapping = edgeToPriorityMapping;
+            
+            this.edgeToLeftAffectMapping = edgeToLeftAffectMapping;
+            this.edgeToRightAffectMapping = edgeToRightAffectMapping;
+            this.edgeToStraightAffectMapping = edgeToStraightAffectMapping;
+            
             this.maxSpeed = maxSpeed;
             this.maxPriority = maxPriority;
             this.distanceInfluence = distanceInfluence;
             this.headingPenaltySeconds = headingPenaltySeconds;
+
+            if (turnCostsConfig.getMinRightAngle() >= 0 || turnCostsConfig.getMinRightAngle() < turnCostsConfig.getMaxRightAngle())
+                throw new IllegalArgumentException("Illegal min_right_angle " + turnCostsConfig.getMinRightAngle());
+
+            if (turnCostsConfig.getMaxRightAngle() >= 0 || turnCostsConfig.getMaxRightAngle() < -180)
+                throw new IllegalArgumentException("Illegal max_right_angle " + turnCostsConfig.getMaxRightAngle());
+
+            if (turnCostsConfig.getMinLeftAngle() <= 0 || turnCostsConfig.getMinLeftAngle() > turnCostsConfig.getMaxLeftAngle())
+                throw new IllegalArgumentException("Illegal min_left_angle " + turnCostsConfig.getMinLeftAngle());
+
+            if (turnCostsConfig.getMaxLeftAngle() <= 0 || turnCostsConfig.getMaxLeftAngle() > 180)
+                throw new IllegalArgumentException("Illegal max_left_angle " + turnCostsConfig.getMaxLeftAngle());
         }
 
         public EdgeToDoubleMapping getEdgeToSpeedMapping() {
@@ -172,6 +218,18 @@ public final class CustomWeighting extends AbstractWeighting {
 
         public EdgeToDoubleMapping getEdgeToPriorityMapping() {
             return edgeToPriorityMapping;
+        }
+        
+        public EdgeToDoubleMapping getEdgeToLeftAffectMapping() {
+        	return edgeToLeftAffectMapping;
+        }
+        
+        public EdgeToDoubleMapping getEdgeToRightAffectMapping() {
+        	return edgeToRightAffectMapping;
+        }
+        
+        public EdgeToDoubleMapping getEdgeToStraightAffectMapping() {
+        	return edgeToStraightAffectMapping;
         }
 
         public double getMaxSpeed() {
@@ -189,5 +247,86 @@ public final class CustomWeighting extends AbstractWeighting {
         public double getMaxPriority() {
             return maxPriority;
         }
+    }
+
+    // code đúng là public static TurnCostProvider
+    public static TurnCostProvider createFromTurnCostConfig(TurnCostProvider turnCostProvider, DecimalEncodedValue orientationEnc, Graph graph, TurnCostsConfig tcConfig) {
+        final double minRightInRad, maxRightInRad, minLeftInRad, maxLeftInRad;
+        minRightInRad = Math.toRadians(tcConfig.getMinRightAngle());
+        maxRightInRad = Math.toRadians(tcConfig.getMaxRightAngle());
+        minLeftInRad = Math.toRadians(tcConfig.getMinLeftAngle());
+        maxLeftInRad = Math.toRadians(tcConfig.getMaxLeftAngle());
+
+        return new TurnCostProvider() {
+
+            @Override
+            public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
+                double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
+                if (Double.isInfinite(weight)) return weight;
+                double changeAngle = calcChangeAngle(inEdge, viaNode, outEdge, graph, orientationEnc);
+                if (changeAngle > minRightInRad && changeAngle < minLeftInRad){
+                	double straight = 0;
+                	if (GlobalVariables.getTurnCostStatus() == true) {
+                		straight = StraightAffect * tcConfig.getStraightCost();
+                	}
+//	            	System.out.println("LEFT getStraightCost: " + tcConfig.getStraightCost());
+//	            	System.out.println("LEFT StraightAffect: " + StraightAffect);
+//	            	System.out.println("=> Straight: " + straight);
+	            	return straight;
+	            }
+                else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad) {
+                	double left = 0;
+                	if (GlobalVariables.getTurnCostStatus() == true) {
+                		left = LeftAffect * tcConfig.getLeftCost();
+                	}
+//                	System.out.println("LEFT getLeftCost: " + tcConfig.getLeftCost());
+//                	System.out.println("LEFT LeftAffect: " + LeftAffect);
+                	System.out.println("=> Left: " + left);
+                	return left;
+                }
+                else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad) {
+                	double right = 0;
+                	if (GlobalVariables.getTurnCostStatus() == true) {
+                		right = RightAffect * tcConfig.getRightCost();
+                	}
+//	            	System.out.println("LEFT getRightCost: " + tcConfig.getRightCost());
+//	            	System.out.println("LEFT RightAffect: " + RightAffect);
+//	            	System.out.println("=> Right: " + right);
+	            	return right;
+	            }
+                else return Double.POSITIVE_INFINITY; // too sharp turn
+            }
+
+            @Override
+            public long calcTurnMillis(int inEdge, int viaNode, int outEdge) {
+                long millis = (long) (1000 * calcTurnWeight(inEdge, viaNode, outEdge));
+                return millis;
+            }
+        };
+    }
+
+    static double calcChangeAngle(int inEdge, int viaNode, int outEdge, Graph graph, DecimalEncodedValue orientationEnc) {
+        EdgeIteratorState prevEdge = graph.getEdgeIteratorState(inEdge, viaNode);
+        EdgeIteratorState edge = graph.getEdgeIteratorState(outEdge, viaNode);
+        if (prevEdge == null || edge == null) {
+            EdgeIteratorState in = graph.getEdgeIteratorState(inEdge, Integer.MIN_VALUE);
+            EdgeIteratorState out = graph.getEdgeIteratorState(outEdge, Integer.MIN_VALUE);
+            throw new IllegalStateException(inEdge + "->" + viaNode + "->" + outEdge
+                    + " || " + in + ": " + in.fetchWayGeometry(FetchMode.ALL)
+                    + " || " + out + ": " + out.fetchWayGeometry(FetchMode.ALL));
+        }
+
+        double prevOrientation = prevEdge.get(orientationEnc);
+        double orientation = edge.get(orientationEnc);
+        // bring parallel to prevOrientation
+        if (orientation >= 0) orientation -= Math.PI;
+        else orientation += Math.PI;
+        prevOrientation = ANGLE_CALC.alignOrientation(orientation, prevOrientation);
+        double changeAngle = orientation - prevOrientation;
+        if (changeAngle > Math.PI) changeAngle -= 2 * Math.PI;
+        else if (changeAngle < -Math.PI) changeAngle += 2 * Math.PI;
+
+        // System.out.println(changeAngle + " " + graph.getEdgeIteratorState(inEdge, viaNode).getName() + " -> " +graph.getEdgeIteratorState(outEdge, viaNode).getName());
+        return changeAngle;
     }
 }
