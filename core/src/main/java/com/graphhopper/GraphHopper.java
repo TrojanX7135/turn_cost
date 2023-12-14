@@ -683,6 +683,8 @@ public class GraphHopper {
 
         if (encodingManager.hasEncodedValue(Curvature.KEY))
             osmParsers.addWayTagParser(new CurvatureCalculator(encodingManager.getDecimalEncodedValue(Curvature.KEY)));
+        if (encodingManager.hasEncodedValue(Orientation.KEY))
+            osmParsers.addWayTagParser(new OrientationCalculator(encodingManager.getDecimalEncodedValue(Orientation.KEY)));
 
         Set<String> added = new HashSet<>();
         vehiclesByName.forEach((name, vehicleStr) -> {
