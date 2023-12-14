@@ -64,7 +64,7 @@ public class CustomWeightingHelper {
     }
     
     public double getLeftAffect(EdgeIteratorState edge, boolean reverse) {
-        return getRawRightAffect(edge, reverse);
+        return getRawLeftAffect(edge, reverse);
     }
     
     public double getRightAffect(EdgeIteratorState edge, boolean reverse) {

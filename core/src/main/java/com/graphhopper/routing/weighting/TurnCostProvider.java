@@ -18,6 +18,7 @@
 
 package com.graphhopper.routing.weighting;
 
+
 /**
  * Implementations of this interface define how turn costs and turn times are calculated.
  */
