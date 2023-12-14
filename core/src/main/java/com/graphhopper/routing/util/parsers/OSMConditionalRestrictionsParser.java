@@ -34,6 +34,7 @@ import java.util.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import com.graphhopper.reader.ReaderWay;
+import com.graphhopper.GlobalVariables;
 
 /**
  * This parser fills the different XYAccessConditional enums from the OSM conditional restrictions.
@@ -132,7 +133,9 @@ public class OSMConditionalRestrictionsParser implements TagParser {
         }
 
         try {
-            LocalDateTime current = LocalDateTime.now();
+            LocalDateTime current;
+            if(GlobalVariables.getTimeRequest() == null) current = LocalDateTime.now();
+            else current = GlobalVariables.getTimeRequest();
             DateTimeFormatter formatter_date = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             DateTimeFormatter formatter_time = DateTimeFormatter.ofPattern("HH:mm");
             String dateRangeParserTime = current.format(formatter_time);
