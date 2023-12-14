@@ -50,14 +50,14 @@ graphhopper:
       "turn_costs":
         {
             "straight": 1,
-            "left": 20,
-            "right": 10,
-            "time_request": "10 <= time_request <= 13 1 1.2 1.001", #thẳng, trái, phải
+            "left": 1,
+            "right": 1,
+            "time_request": "10 <= time_request <= 13 1 1000 1.001", #thẳng, trái, phải
             "left_affect": [
-                { "if": "road_class == PRIMARY",  "multiply_by": "10" },
-                { "if": "road_class == SECONDARY",  "multiply_by": "12" },
-                { "if": "road_class == TERTIARY",  "multiply_by": "15" },
-                { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" },
+                { "if": "road_class == PRIMARY",  "multiply_by": "1" },
+                { "if": "road_class == SECONDARY",  "multiply_by": "1" },
+                { "if": "road_class == TERTIARY",  "multiply_by": "1" },
+                { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },
             ],
             "right_affect": [
                 { "if": "road_class == PRIMARY",  "multiply_by": "1.001" },
