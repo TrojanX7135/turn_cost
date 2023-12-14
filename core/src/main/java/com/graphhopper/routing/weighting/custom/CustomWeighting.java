@@ -89,13 +89,10 @@ public final class CustomWeighting extends AbstractWeighting {
     private final double headingPenaltySeconds;
     private final EdgeToDoubleMapping edgeToSpeedMapping;
     private final EdgeToDoubleMapping edgeToPriorityMapping;
-    private final EdgeToDoubleMapping edgeToLeftAffectMapping;
-    private final EdgeToDoubleMapping edgeToRightAffectMapping;
-    private final EdgeToDoubleMapping edgeToStraightAffectMapping;
+    private static EdgeToDoubleMapping edgeToLeftAffectMapping;
+    private static EdgeToDoubleMapping edgeToRightAffectMapping;
+    private static EdgeToDoubleMapping edgeToStraightAffectMapping;
     
-    private static double LeftAffect;
-    private static double RightAffect;
-    private static double StraightAffect;
 
     public CustomWeighting(BooleanEncodedValue baseAccessEnc, DecimalEncodedValue baseSpeedEnc, TurnCostProvider turnCostProvider, Parameters parameters) {
         super(baseAccessEnc, baseSpeedEnc, turnCostProvider);
@@ -139,11 +136,7 @@ public final class CustomWeighting extends AbstractWeighting {
             return Double.POSITIVE_INFINITY;
 
         double speed = edgeToSpeedMapping.get(edgeState, reverse);
-//        System.out.println("SPEED: " + speed);
         
-        LeftAffect = edgeToLeftAffectMapping.get(edgeState, reverse);
-        RightAffect = edgeToRightAffectMapping.get(edgeState, reverse);
-        StraightAffect = edgeToStraightAffectMapping.get(edgeState, reverse);
         
         if (speed > maxSpeed * SPEED_CONV)
             throw new IllegalStateException("for " + getName() + " speed <= maxSpeed is violated, " + speed + " <= " + maxSpeed * SPEED_CONV);
@@ -249,7 +242,6 @@ public final class CustomWeighting extends AbstractWeighting {
         }
     }
 
-    // code đúng là public static TurnCostProvider
     public static TurnCostProvider createFromTurnCostConfig(TurnCostProvider turnCostProvider, DecimalEncodedValue orientationEnc, Graph graph, TurnCostsConfig tcConfig) {
         final double minRightInRad, maxRightInRad, minLeftInRad, maxLeftInRad;
         minRightInRad = Math.toRadians(tcConfig.getMinRightAngle());
@@ -259,39 +251,45 @@ public final class CustomWeighting extends AbstractWeighting {
 
         return new TurnCostProvider() {
 
+
             @Override
             public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
+
+                EdgeIteratorState edgeState = graph.getEdgeIteratorState(inEdge, Integer.MIN_VALUE);
+                
                 double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
                 if (Double.isInfinite(weight)) return weight;
-                double changeAngle = calcChangeAngle(inEdge, viaNode, outEdge, graph, orientationEnc);
+                double changeAngle = calcChangeAngle(inEdge , viaNode, outEdge, graph, orientationEnc);
+                
+                // STRAIGHT
                 if (changeAngle > minRightInRad && changeAngle < minLeftInRad){
                 	double straight = 0;
+                	double StraightAffect = edgeToStraightAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
                 		straight = StraightAffect * tcConfig.getStraightCost();
                 	}
-//	            	System.out.println("LEFT getStraightCost: " + tcConfig.getStraightCost());
-//	            	System.out.println("LEFT StraightAffect: " + StraightAffect);
-//	            	System.out.println("=> Straight: " + straight);
 	            	return straight;
 	            }
+                
+                // LEFT
                 else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad) {
                 	double left = 0;
+                	double LeftAffect = edgeToLeftAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
                 		left = LeftAffect * tcConfig.getLeftCost();
                 	}
-//                	System.out.println("LEFT getLeftCost: " + tcConfig.getLeftCost());
-//                	System.out.println("LEFT LeftAffect: " + LeftAffect);
-                	System.out.println("=> Left: " + left);
+//                	System.out.println(changeAngle + " " + graph.getEdgeIteratorState(inEdge, viaNode).getName() + " -> " +graph.getEdgeIteratorState(outEdge, viaNode).getName());
+//                	System.out.println("leftAffect" + LeftAffect);
                 	return left;
                 }
+                
+                // RIGHT
                 else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad) {
                 	double right = 0;
+                	double RightAffect = edgeToRightAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
                 		right = RightAffect * tcConfig.getRightCost();
                 	}
-//	            	System.out.println("LEFT getRightCost: " + tcConfig.getRightCost());
-//	            	System.out.println("LEFT RightAffect: " + RightAffect);
-//	            	System.out.println("=> Right: " + right);
 	            	return right;
 	            }
                 else return Double.POSITIVE_INFINITY; // too sharp turn
