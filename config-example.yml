@@ -46,7 +46,32 @@ graphhopper:
           "speed": [
               { "if": "car_access_conditional == NO", "multiply_by": "0" },
               { "if": "car_traffic_conditional == NO", "multiply_by": "0 * car_average_speed" }
-          ]
+          ],
+      "turn_costs":
+        {
+            "straight": 1,
+            "left": 20,
+            "right": 10,
+            "time_request": "10 <= time_request <= 13 1 1.2 1.001", #thẳng, trái, phải
+            "left_affect": [
+                { "if": "road_class == PRIMARY",  "multiply_by": "10" },
+                { "if": "road_class == SECONDARY",  "multiply_by": "12" },
+                { "if": "road_class == TERTIARY",  "multiply_by": "15" },
+                { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" },
+            ],
+            "right_affect": [
+                { "if": "road_class == PRIMARY",  "multiply_by": "1.001" },
+                { "if": "road_class == SECONDARY",  "multiply_by": "1.01" },
+                { "if": "road_class == TERTIARY",  "multiply_by": "1.05" },
+                { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" },
+            ],
+            "straight_affect": [
+                { "if": "road_class == PRIMARY",  "multiply_by": "1" },
+                { "if": "road_class == SECONDARY",  "multiply_by": "1" },
+                { "if": "road_class == TERTIARY",  "multiply_by": "1" },
+                { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },
+            ],
+        }
   }
 
 
@@ -217,7 +242,7 @@ graphhopper:
 #         - name: truck
 #           vehicle: roads
 #           turn_costs: true
-#           custom_model: {      
+#           custom_model: {
 #             "distance_influence": 1,
 #             "priority": [
 #               { "if": "road_access == PRIVATE",  "multiply_by": "0" },
@@ -227,7 +252,7 @@ graphhopper:
 #               { "if": "true", "limit_to": "car_average_speed * 0.9" },
 #               { "if": "true", "limit_to": "95" },
 #             ],
-#             "turn_costs": 
+#             "turn_costs":
 #             {
 #               "straight": 1,
 #               "left": 20,
@@ -235,22 +260,22 @@ graphhopper:
 #               "time_request": "10 <= time_request <= 13 1 1.2 1.001", #thẳng, trái, phải
 #               "left_affect": [
 #                  { "if": "road_class == PRIMARY",  "multiply_by": "10" },
-#                  { "if": "road_class == SECONDARY",  "multiply_by": "12" },  
-#                  { "if": "road_class == TERTIARY",  "multiply_by": "15" },  
-#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" },       
+#                  { "if": "road_class == SECONDARY",  "multiply_by": "12" },
+#                  { "if": "road_class == TERTIARY",  "multiply_by": "15" },
+#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "20" },
 #               ],
 #               "right_affect": [
 #                  { "if": "road_class == PRIMARY",  "multiply_by": "1.001" },
-#                  { "if": "road_class == SECONDARY",  "multiply_by": "1.01" },  
-#                  { "if": "road_class == TERTIARY",  "multiply_by": "1.05" },  
-#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" },              
+#                  { "if": "road_class == SECONDARY",  "multiply_by": "1.01" },
+#                  { "if": "road_class == TERTIARY",  "multiply_by": "1.05" },
+#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" },
 #               ],
 #               "straight_affect": [
 #                  { "if": "road_class == PRIMARY",  "multiply_by": "1" },
-#                  { "if": "road_class == SECONDARY",  "multiply_by": "1" },  
-#                  { "if": "road_class == TERTIARY",  "multiply_by": "1" },  
-#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },            
-#               ],              
+#                  { "if": "road_class == SECONDARY",  "multiply_by": "1" },
+#                  { "if": "road_class == TERTIARY",  "multiply_by": "1" },
+#                  { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },
+#               ],
 #             }
 #           }
           
@@ -270,9 +295,9 @@ graphhopper:
     # list you can define for which of the above routing profiles such preparation shall be performed. Note that to support
     # profiles with `turn_costs: true` a more elaborate preparation is required (longer preparation time and more memory
     # usage) and the routing will also be slower than with `turn_costs: false`.
-    profiles_ch:
-        - profile: car
-        - profile: truck
+#    profiles_ch:
+#        - profile: car
+#        - profile: truck
 
     # Hybrid mode:
     # Similar to speed mode, the hybrid mode (Landmarks, LM) also speeds up routing by doing calculating auxiliary data
@@ -283,7 +308,7 @@ graphhopper:
     # profile for which an LM profile exists. Important: This only will give correct routing results if the weights
     # calculated for the profile are equal or larger (for every edge) than those calculated for the profile that was used
     # for the preparation (`my_other_profile`)
-    profiles_lm: []
+#    profiles_lm: []
 
     #### Vehicles ####
 

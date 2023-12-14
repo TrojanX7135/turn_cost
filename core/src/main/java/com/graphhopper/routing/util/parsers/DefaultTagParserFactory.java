@@ -126,8 +126,7 @@ public class DefaultTagParserFactory implements TagParserFactory {
             EnumEncodedValue<MotorcycleAccessConditional> enc = lookup.getEnumEncodedValue(MotorcycleAccessConditional.KEY, MotorcycleAccessConditional.class);
             Setter fct = (edgeId, edgeIntAccess, b) -> enc.setEnum(false, edgeId, edgeIntAccess, b == null ? MotorcycleAccessConditional.MISSING : b ? MotorcycleAccessConditional.YES : MotorcycleAccessConditional.NO);
             return new OSMConditionalRestrictionsParser(MotorcycleAccessConditional.CONDITIONALS, fct, "");
-        } else if (name.equals(FerrySpeed.KEY))
-        else if (name.equals(FerrySpeed.KEY))
+        }else if (name.equals(FerrySpeed.KEY))
             return new FerrySpeedCalculator(lookup.getDecimalEncodedValue(FerrySpeed.KEY));
         return null;
     }

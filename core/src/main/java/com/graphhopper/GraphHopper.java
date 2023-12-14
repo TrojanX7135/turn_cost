@@ -688,14 +688,6 @@ public class GraphHopper {
         vehiclesByName.forEach((name, vehicleStr) -> {
             VehicleTagParsers vehicleTagParsers = vehicleTagParserFactory.createParsers(encodingManager, name,
                     new PMap(vehicleStr));
-        if (encodingManager.hasEncodedValue(Orientation.KEY))
-            osmParsers.addWayTagParser(new OrientationCalculator(encodingManager.getDecimalEncodedValue(Orientation.KEY)));
-
-        DateRangeParser dateRangeParser = DateRangeParser.createInstance(dateRangeParserString);
-        Set<String> added = new HashSet<>();
-        vehiclesByName.forEach((name, vehicleStr) -> {
-            VehicleTagParsers vehicleTagParsers = vehicleTagParserFactory.createParsers(encodingManager, name,
-                    new PMap(vehicleStr).putObject("date_range_parser", dateRangeParser));
             if (vehicleTagParsers == null)
                 return;
             vehicleTagParsers.getTagParsers().forEach(tagParser -> {
@@ -843,8 +835,8 @@ public class GraphHopper {
      */
     public GraphHopper importOrLoad() {
 //        if (!load()) {
-            printInfo();
-            process(false);
+        printInfo();
+        process(false);
 //        } else {
 //            printInfo();
 //        }
@@ -885,6 +877,7 @@ public class GraphHopper {
                 .withTurnCosts(encodingManager.needsTurnCostsSupport())
                 .setSegmentSize(defaultSegmentSize)
                 .build();
+
         properties = new StorableProperties(directory);
         checkProfilesConsistency();
 
@@ -1298,8 +1291,8 @@ public class GraphHopper {
         tmpIndex.setResolution(preciseIndexResolution);
         tmpIndex.setMaxRegionSearch(maxRegionSearch);
 //        if (!tmpIndex.loadExisting()) {
-            ensureWriteAccess();
-            tmpIndex.prepareIndex();
+        ensureWriteAccess();
+        tmpIndex.prepareIndex();
 //        }
 
         return tmpIndex;
@@ -1430,7 +1423,7 @@ public class GraphHopper {
         return jobs;
     }
 
-    protected void flush() {
+    public void flush() {
         logger.info("flushing graph " + getBaseGraphString() + ", details:" + baseGraph.toDetailsString() + ", "
                 + getMemInfo() + ")");
         baseGraph.flush();
