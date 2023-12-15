@@ -24,7 +24,6 @@ import static java.lang.Long.parseLong;
 @Path("deleteTag")
 @Produces(MediaType.APPLICATION_JSON)
 public class DeleteTagResource {
-    static List<String> processedkeysList = new ArrayList<>();
     private GraphHopper graphHopper;
     public static class KeyValues {
         public Map<String, String> KeyValuesMap;
@@ -48,28 +47,30 @@ public class DeleteTagResource {
         if(way != null)
         {
             List<String> keysList = new ArrayList<>(way.getTags().keySet());
-            for (String s : keysList) {
-                if (s.contains("key_values")) break;
-                processedkeysList.add(s);
-            }
-
             List<Integer> listEdge = this.graphHopper.getReader().getEgdeFromWay(parseLong(OSMId));
             if(key.contains("None"))
             {
-                for (String s : processedkeysList) {
+                for (String s : keysList) {
+                    try{
+                        way.getTag(s);
+                    }
+                    catch(Exception e)
+                    {
+                        continue;
+                    }
                     key_value.KeyValuesMap.put(s, way.getTag(s));
                     System.out.println(s);
                 }
             }
             else
             {
-                if(!checkExists(key,processedkeysList))
+                if(!checkExists(key,keysList))
                 {
                     System.out.println("Tag not Exists");
                 }
                 else
                 {
-                    processedkeysList.remove(key);
+                    keysList.remove(key);
                     way.removeTag(key);
                     System.out.println("Delete Successful");
                 }
