@@ -41,11 +41,11 @@ graphhopper:
       distance_influence: 70,
       "priority": [
           { "if": "car_access_conditional == NO", "multiply_by": "0" },
-          { "if": "car_traffic_conditional == NO", "multiply_by": "0" }
+          { "if": "car_traffic_conditional == NO", "multiply_by": "0.1" }
       ],
           "speed": [
               { "if": "car_access_conditional == NO", "multiply_by": "0" },
-              { "if": "car_traffic_conditional == NO", "multiply_by": "0 * car_average_speed" }
+              { "if": "car_traffic_conditional == NO", "multiply_by": "0.1 * car_average_speed" }
           ]
   }
 
