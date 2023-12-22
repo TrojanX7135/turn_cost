@@ -258,17 +258,8 @@ public final class CustomWeighting extends AbstractWeighting {
             public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
 
                 EdgeIteratorState edgeState = graph.getEdgeIteratorState(inEdge, Integer.MIN_VALUE);
-                
-//                String nameInEdge = "In";
-//                String nameOutEdge = "Out";
-//                
-//                //Lấy tên đường ra và đường vào
-//                if (graph.getEdgeIteratorState(inEdge, viaNode).getName() != null ) {
-//                	nameInEdge = graph.getEdgeIteratorState(inEdge, viaNode).getName();
-//                }
-//                if (graph.getEdgeIteratorState(outEdge, viaNode).getName() != null ) {
-//                	nameOutEdge = graph.getEdgeIteratorState(outEdge, viaNode).getName();
-//                }
+
+        
                 
                 double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
                 if (Double.isInfinite(weight)) return weight;
