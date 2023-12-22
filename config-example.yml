@@ -69,18 +69,18 @@ graphhopper:
               "turn_costs":
                 {
                     "straight": 1,
-                    "left": 1,
-                    "right": 1,
-                    "time_request": "9 <= time_request <= 13 1 1000 1", #thẳng, trái, phải
+                    "left": 20,
+                    "right": 10,
+                    "time_request": "10 <= time_request <= 13 1 1.3 1.01", #thẳng, trái, phải
                     "left_affect": [
-                        { "if": "road_class == PRIMARY",  "multiply_by": "1" },
-                        { "if": "road_class == SECONDARY",  "multiply_by": "1" },
-                        { "if": "road_class == TERTIARY",  "multiply_by": "1" },
-                        { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },
+                        { "if": "road_class == PRIMARY",  "multiply_by": "1.4" },
+                        { "if": "road_class == SECONDARY",  "multiply_by": "1.3" },
+                        { "if": "road_class == TERTIARY",  "multiply_by": "1.2" },
+                        { "if": "road_class == RESIDENTIAL",  "multiply_by": "1.1" },
                     ],
                     "right_affect": [
                         { "if": "road_class == PRIMARY",  "multiply_by": "1" },
-                        { "if": "road_class == SECONDARY",  "multiply_by": "1000" },
+                        { "if": "road_class == SECONDARY",  "multiply_by": "1" },
                         { "if": "road_class == TERTIARY",  "multiply_by": "1" },
                         { "if": "road_class == RESIDENTIAL",  "multiply_by": "1" },
                     ],
@@ -96,6 +96,12 @@ graphhopper:
             vehicle: roads
             weighting: custom
             custom_model_files: [ motorcycle.json,curvature.json ]
+
+        -   name: small_truck
+            vehicle: roads
+            weighting: custom
+            turn_costs: true
+            custom_model_files: [ small_truck.json ]
 
 
     #    - name: bike
