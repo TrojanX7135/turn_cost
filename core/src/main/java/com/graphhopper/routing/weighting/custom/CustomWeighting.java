@@ -87,8 +87,10 @@ public final class CustomWeighting extends AbstractWeighting {
     private final double maxPriority;
     private final double distanceInfluence;
     private final double headingPenaltySeconds;
+    
     private final EdgeToDoubleMapping edgeToSpeedMapping;
     private final EdgeToDoubleMapping edgeToPriorityMapping;
+    
     private static EdgeToDoubleMapping edgeToLeftAffectMapping;
     private static EdgeToDoubleMapping edgeToRightAffectMapping;
     private static EdgeToDoubleMapping edgeToStraightAffectMapping;
@@ -256,13 +258,15 @@ public final class CustomWeighting extends AbstractWeighting {
             public double calcTurnWeight(int inEdge, int viaNode, int outEdge) {
 
                 EdgeIteratorState edgeState = graph.getEdgeIteratorState(inEdge, Integer.MIN_VALUE);
+
+        
                 
                 double weight = turnCostProvider.calcTurnWeight(inEdge, viaNode, outEdge);
                 if (Double.isInfinite(weight)) return weight;
                 double changeAngle = calcChangeAngle(inEdge , viaNode, outEdge, graph, orientationEnc);
                 
                 // STRAIGHT
-                if (changeAngle > minRightInRad && changeAngle < minLeftInRad){
+                if (graph.getEdgeIteratorState(inEdge, viaNode).getName() == graph.getEdgeIteratorState(outEdge, viaNode).getName()){
                 	double straight = 0;
                 	double StraightAffect = edgeToStraightAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
@@ -271,8 +275,18 @@ public final class CustomWeighting extends AbstractWeighting {
 	            	return straight;
 	            }
                 
+                // STRAIGHT but != name_road
+                if (changeAngle > minRightInRad && changeAngle < minLeftInRad && graph.getEdgeIteratorState(inEdge, viaNode).getName() != graph.getEdgeIteratorState(outEdge, viaNode).getName()){
+                	double straight = 0;
+                	double StraightAffect = edgeToStraightAffectMapping.get(edgeState, false);
+                	if (GlobalVariables.getTurnCostStatus() == true) {
+                		straight = StraightAffect * tcConfig.getStraightCost();
+                	}
+	            	return straight + 5;
+	            }
+                
                 // LEFT
-                else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad) {
+                else if (changeAngle >= minLeftInRad && changeAngle <= maxLeftInRad && graph.getEdgeIteratorState(inEdge, viaNode).getName() != graph.getEdgeIteratorState(outEdge, viaNode).getName()) {
                 	double left = 0;
                 	double LeftAffect = edgeToLeftAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
@@ -284,7 +298,7 @@ public final class CustomWeighting extends AbstractWeighting {
                 }
                 
                 // RIGHT
-                else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad) {
+                else if (changeAngle <= minRightInRad && changeAngle >= maxRightInRad && graph.getEdgeIteratorState(inEdge, viaNode).getName() != graph.getEdgeIteratorState(outEdge, viaNode).getName()) {
                 	double right = 0;
                 	double RightAffect = edgeToRightAffectMapping.get(edgeState, false);
                 	if (GlobalVariables.getTurnCostStatus() == true) {
@@ -292,6 +306,7 @@ public final class CustomWeighting extends AbstractWeighting {
                 	}
 	            	return right;
 	            }
+                
                 else return Double.POSITIVE_INFINITY; // too sharp turn
             }
 
