@@ -22,7 +22,7 @@ public class GlobalVariables {
         support.firePropertyChange("time_request", oldTime, time_request);
     }
     
-    //Turn_cost
+    //Turn_cost status
     public static Boolean getTurnCostStatus() {
     	return turn_cost_status;
     }

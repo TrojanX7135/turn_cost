@@ -7,6 +7,7 @@ import com.graphhopper.json.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TurnCostsConfig {
 
@@ -38,8 +39,8 @@ public class TurnCostsConfig {
     private double leftCost = 3; // in seconds
     private double rightCost = 0.5;
     private double straightCost = 0;
-    private double minLeftAngle = 25, maxLeftAngle = 180;
-    private double minRightAngle = -25, maxRightAngle = -180;
+    private double minLeftAngle = 45, maxLeftAngle = 175;
+    private double minRightAngle = -45, maxRightAngle = -175;
     
 
     public TurnCostsConfig() {
@@ -194,5 +195,40 @@ public class TurnCostsConfig {
                 && Double.compare(that.maxLeftAngle, maxLeftAngle) == 0 && Double.compare(that.minRightAngle, minRightAngle) == 0
                 && Double.compare(that.maxRightAngle, maxRightAngle) == 0;
     }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(left, right, straight, timeRequest, leftAffect, rightAffect, straightAffect, minLeftAngle, maxLeftAngle, minRightAngle, maxRightAngle);
+    }
+
+    @Override
+    public String toString() {
+        return "left=" + left + ", right=" + right + ", straight=" + straight 
+        		+ ", timeRequest=" + timeRequest 
+        		+ ", leftAffect="+ leftAffect + ", rightAffect=" + rightAffect + ", straightAffect=" + straightAffect
+                + ", minLeftAngle=" + minLeftAngle + ", maxLeftAngle=" + maxLeftAngle
+                + ", minRightAngle=" + minRightAngle + ", maxRightAngle=" + maxRightAngle;
+    }
+    
+//	@JsonProperty("left")
+//	private double left;
+//	
+//	@JsonProperty("right")
+//	private double right;
+//	
+//	@JsonProperty("straight")
+//	private double straight;
+//	
+//	@JsonProperty("time_request")
+//	private String left;
+//	
+//	@JsonProperty("left_affect")
+//	private List<Statement> leftAffect = new ArrayList<>();
+//	
+//	@JsonProperty("right_affect")
+//	private List<Statement> rightAffect = new ArrayList<>();
+//	
+//	@JsonProperty("straight_affect")
+//	private List<Statement> straightAffect = new ArrayList<>();
     
 }

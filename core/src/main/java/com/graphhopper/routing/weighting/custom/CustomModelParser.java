@@ -140,7 +140,9 @@ public class CustomModelParser {
             // request
             CustomWeightingHelper prio = (CustomWeightingHelper) clazz.getDeclaredConstructor().newInstance();
             prio.init(lookup, avgSpeedEnc, priorityEnc, CustomModel.getAreasAsMap(customModel.getAreas()));
-            return new CustomWeighting.Parameters(prio::getSpeed, prio::getPriority, prio::getLeftAffect, prio::getRightAffect, prio::getStraightAffect,
+            return new CustomWeighting.Parameters(
+            		prio::getSpeed, prio::getPriority, 
+            		prio::getLeftAffect, prio::getRightAffect, prio::getStraightAffect,
                     prio.getMaxSpeed(), prio.getMaxPriority(),
                     customModel.getDistanceInfluence() == null ? 0 : customModel.getDistanceInfluence(),
                     customModel.getHeadingPenalty() == null ? Parameters.Routing.DEFAULT_HEADING_PENALTY
@@ -423,35 +425,6 @@ public class CustomModelParser {
             set.add(rightAffectVar.startsWith(BACKWARD_PREFIX) ? rightAffectVar.substring(BACKWARD_PREFIX.length()) : rightAffectVar);
         for (String straightAffectVar : straightAffectVariables)
             set.add(straightAffectVar.startsWith(BACKWARD_PREFIX) ? straightAffectVar.substring(BACKWARD_PREFIX.length()) : straightAffectVar);
-
-        
-//        for (String leftAffectVar : leftAffectVariables) {
-//            if (lookup.hasEncodedValue(leftAffectVar)) {
-//                EncodedValue enc = lookup.getEncodedValue(leftAffectVar, EncodedValue.class);
-//                classSourceCode.append("protected " + getInterface(enc) + " " + leftAffectVar + "_enc;\n");
-//                initSourceCode.append("this." + leftAffectVar + "_enc = ("
-//                        + getInterface(lookup.getEncodedValue(leftAffectVar, EncodedValue.class))
-//                        + ") lookup.getEncodedValue(\"" + leftAffectVar + "\", EncodedValue.class);\n");
-//            }
-//        }
-//        for (String rightAffectVar : rightAffectVariables) {
-//            if (lookup.hasEncodedValue(rightAffectVar)) {
-//                EncodedValue enc = lookup.getEncodedValue(rightAffectVar, EncodedValue.class);
-//                classSourceCode.append("protected " + getInterface(enc) + " " + rightAffectVar + "_enc;\n");
-//                initSourceCode.append("this." + rightAffectVar + "_enc = ("
-//                        + getInterface(lookup.getEncodedValue(rightAffectVar, EncodedValue.class))
-//                        + ") lookup.getEncodedValue(\"" + rightAffectVar + "\", EncodedValue.class);\n");
-//            }
-//        }
-//        for (String straightAffectVar : straightAffectVariables) {
-//            if (lookup.hasEncodedValue(straightAffectVar)) {
-//                EncodedValue enc = lookup.getEncodedValue(straightAffectVar, EncodedValue.class);
-//                classSourceCode.append("protected " + getInterface(enc) + " " + straightAffectVar + "_enc;\n");
-//                initSourceCode.append("this." + straightAffectVar + "_enc = ("
-//                        + getInterface(lookup.getEncodedValue(straightAffectVar, EncodedValue.class))
-//                        + ") lookup.getEncodedValue(\"" + straightAffectVar + "\", EncodedValue.class);\n");
-//            }
-//        }
 
         for (String arg : set) {
             if (lookup.hasEncodedValue(arg)) {

@@ -180,7 +180,7 @@ public class RouteResource {
         GlobalVariables.setTimeRequest(localDateTime);
         GlobalVariables.setTurnCostStatus(request.getTurnCostStatus());
         
-        System.out.println("timeRequest :" + GlobalVariables.getTimeRequest());
+        System.out.println("TimeRequest :" + GlobalVariables.getTimeRequest());
     	
     	StopWatch sw = new StopWatch().start();
         request = ghRequestTransformer.transformRequest(request);
